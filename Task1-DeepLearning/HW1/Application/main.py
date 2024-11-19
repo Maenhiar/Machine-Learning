@@ -1,25 +1,20 @@
-import keras
-from keras import layers
-from keras import ops
+import os
+from CSVParser.CSVParser_2J_2D import CSVParser_2J_2D
+from CSVParser.CSVParser_3J_2D import CSVParser_3J_2D
+from CSVParser.CSVParser_5J_3D import CSVParser_5J_3D
 
-model = keras.Sequential(
-    [
-        layers.Dense(2, activation="relu"),
-        layers.Dense(3, activation="relu"),
-        layers.Dense(4),
-    ]
-)  # No weights at this stage!
+# Risali di una cartella con '..' e poi entra in 'data/subfolder'
+file_path = '../Dataset/Training-set/r2/r2_21_100k.csv'
 
-# At this point, you can't do this:
-# model.weights
+# 1. Ottieni la directory in cui si trova lo script
+script_dir = os.path.dirname(os.path.abspath(__file__))
 
-# You also can't do this:
-# model.summary()
+# 2. Naviga alla cartella superiore (my_project)
+parent_dir = os.path.dirname(script_dir)
 
-# Call the model on a test input
-x = ops.ones((1, 4))
-y = model(x)
-print("Number of weights after calling the model:", len(model.weights))  # 6
+# 3. Costruisci il percorso completo al file CSV
+csv_file_path = os.path.join(parent_dir, 'Dataset', 'Training-set', 'r5', 'r5_25_100k.csv')
 
-model.summary()
-
+parser = CSVParser_5J_3D(csv_file_path, ";", 0)
+cacca = parser.getInput()
+i=0
