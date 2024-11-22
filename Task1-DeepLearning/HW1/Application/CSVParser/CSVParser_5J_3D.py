@@ -1,3 +1,4 @@
+import os
 from CSVParser.CSVParser_3J_2D import CSVParser_3J_2D
 from typing import List
 import numpy as np
@@ -7,8 +8,8 @@ class CSVParser_5J_3D(CSVParser_3J_2D):
     __input4ColumnName = " j4"
     __output2ColumnName = " ee_z"
     
-    def __init__(self, filepath: str, separator: str, headerValue: int):
-        super().__init__(filepath, separator, headerValue)
+    def __init__(self):
+        super().__init__()
 
     def getInput(self) -> List[List[np.float64]]:
         self.__input = self._parsedCSV[[self._getInput0ColumnName(), self._getInput1ColumnName(), 
@@ -22,3 +23,7 @@ class CSVParser_5J_3D(CSVParser_3J_2D):
                                             self.__output2ColumnName]].values
         
         return self.__output
+    
+    def __setCSVFileFinalPath(self, __csv_file_path : str) :
+        self.__csv_file_path = os.path.join(self.__csv_file_path, 'r5', 'r5_22_100k.csv')
+        return;
