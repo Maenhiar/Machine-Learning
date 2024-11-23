@@ -3,9 +3,7 @@ import numpy as np
 from typing import List
 import pandas as pd
 
-from Application.CSVParser import CSVParser
-
-class CSVParser_2J_2D(CSVParser):
+class CSVParser_2J_2D():
     __script_dir = os.path.dirname(os.path.abspath(__file__))
     __parent_dir = os.path.dirname(__script_dir)
     __csv_file_path = os.path.join(__parent_dir, "Dataset", "Training-set")
@@ -15,6 +13,7 @@ class CSVParser_2J_2D(CSVParser):
     __output1ColumnName = " ee_y"
     __separator = ";"
     __headerValue = 0
+    _parsedCSV = None
         
     def __init__(self):
         self.__setCSVFileFinalPath(self.__csv_file_path)
@@ -26,12 +25,12 @@ class CSVParser_2J_2D(CSVParser):
             raise
         
     def getInput(self) -> List[List[np.float64]]:
-        self.__input = self._parsedCSV[[self.__input0ColumnName, self.__input1ColumnName]].values
-        return self.__input
+        input = self._parsedCSV[[self.__input0ColumnName, self.__input1ColumnName]].values
+        return input
 
     def getOutput(self) -> List[List[np.float64]]:
-        self.__output = self._parsedCSV[[self.__output0ColumnName, self.__output1ColumnName]].values
-        return self.__output
+        output = self._parsedCSV[[self.__output0ColumnName, self.__output1ColumnName]].values
+        return output
     
     def _getInput0ColumnName(self) -> str:
         return self.__input0ColumnName

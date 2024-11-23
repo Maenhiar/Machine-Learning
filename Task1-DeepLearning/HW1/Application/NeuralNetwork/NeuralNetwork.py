@@ -1,5 +1,4 @@
 from abc import ABC
-from Application.CSVParser import CSVParser
 from sklearn.metrics import r2_score
 from keras.callbacks import EarlyStopping
 from keras.layers import Input, Dense, Dropout
@@ -8,23 +7,31 @@ from keras import regularizers
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.optimizers import SGD
 
-# Classe base Animal
 class NeuralNetwork(ABC):
     __inputNeuronsNumber = 2
     __outputNeuronsNumber = 2
     __batch_size = 32
     __epochsNumber = 10
-    __CSVParser = CSVParser()
-
-    # Costruttore "protetto", solo la classe stessa può invocarlo
-    def __init__(self, neuronsNumber):
+    __neuronsNumber = 1
+    __inputSet = None
+    __outputSet = None
+    __trainsetInput = None
+    __trainsetOutput = None
+    __testsetInput = None
+    __testsetOutput = None 
+    __validationsetInput = None
+    __validationsetOutput = None
+    
+    def __init__(self, firstLayerNeuronsNumber : int, inputSet, outputSet):
         if type(self) is NeuralNetwork:
             raise NotImplementedError("Non è possibile creare un'istanza della classe astratta!")
 
-        if self.__isNeuronsNumberValid(neuronsNumber) == False :
+        if self.__isNeuronsNumberValid(firstLayerNeuronsNumber) == False :
             raise ValueError("Il valore deve essere maggiore o uguale a 0")
 
-        self.__neuronsNumber = neuronsNumber
+        self.__inputSet = inputSet
+        self.__outputSet = outputSet
+        self.__neuronsNumber = firstLayerNeuronsNumber
         self.__modelSetup()
         self.__trainTestValidationSetsSetup()
 
@@ -82,19 +89,16 @@ class NeuralNetwork(ABC):
         self.__isEarlyStoppingActivated = False
 
     def __modelSetup(self):
-        self.__inputLayer = Input(shape=(self.__inputNeuronsNumber,))
-        self.__modelLayers = Dense(self.__neuronsNumber, activation="relu")(self.__inputLayer)
-        self.__outputLayer = Dense(self.__outputNeuronsNumber, activation="linear")(self.__modelLayers)
-        self.__model = Model(inputs = self.__inputLayer, outputs = self.__outputLayer)
+        inputLayer = Input(shape=(self.__inputNeuronsNumber,))
+        self.__modelLayers = Dense(self.__neuronsNumber, activation="relu")(inputLayer)
+        outputLayer = Dense(self.__outputNeuronsNumber, activation="linear")(self.__modelLayers)
+        self.__model = Model(inputs = inputLayer, outputs = outputLayer)
         print(self.__model.summary())
 
     def __trainTestValidationSetsSetup(self) :
-        inputSet = self.__CSVParser.getInput()
-        outputSet = self.__CSVParser.getOutput()
-
-        trainsetProportion = int(2 * len(inputSet) / 3)  # 2/3 per il train
-        self.__trainsetInput, self.__trainsetOutput = input[:trainsetProportion], outputSet[:trainsetProportion]
-        self.__testsetInput, self.__testsetOutput = input[trainsetProportion:], outputSet[trainsetProportion:] 
+        trainsetProportion = int(2 * len(self.__inputSet) / 3)  # 2/3 per il train
+        self.__trainsetInput, self.__trainsetOutput = input[:trainsetProportion], self.__outputSet[:trainsetProportion]
+        self.__testsetInput, self.__testsetOutput = input[trainsetProportion:], self.__outputSet[trainsetProportion:] 
 
         self.__trainsetInput = self.__trainsetInput.astype("float32")
         testsetInput = testsetInput.astype("float32")
