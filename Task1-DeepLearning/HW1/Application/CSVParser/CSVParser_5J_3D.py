@@ -12,18 +12,18 @@ class CSVParser_5J_3D(CSVParser_3J_2D):
         super().__init__()
 
     def getInput(self) -> List[List[np.float64]]:
-        self.__input = self._parsedCSV[[self._getInput0ColumnName(), self._getInput1ColumnName(), 
+        input = self._getParsedCSV()[[self._getInput0ColumnName(), self._getInput1ColumnName(), 
                                             self._getInput2ColumnName(), self.__input3ColumnName, 
                                                 self.__input4ColumnName]].values
         
-        return self.__input
+        return input
 
     def getOutput(self) -> List[List[np.float64]]:
-        self.__output = self._parsedCSV[[self._getOutput0ColumnName(), self._getOutput1ColumnName(), 
+        output = self._getParsedCSV()[[self._getOutput0ColumnName(), self._getOutput1ColumnName(), 
                                             self.__output2ColumnName]].values
         
-        return self.__output
+        return output
     
-    def __setCSVFileFinalPath(self, __csv_file_path : str) :
-        self.__csv_file_path = os.path.join(self.__csv_file_path, 'r5', 'r5_22_100k.csv')
+    def _setCSVFileFinalPath(self) :
+        self._setCSVFilePath(os.path.join(self._getCSVFilePath(), 'r5', 'r5_25_100k.csv'))
         return;

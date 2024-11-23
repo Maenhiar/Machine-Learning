@@ -1,18 +1,18 @@
 from abc import ABC
 from sklearn.metrics import r2_score
-from keras.callbacks import EarlyStopping
-from keras.layers import Input, Dense, Dropout
-from keras.models import Model
-from keras import regularizers
+from tensorflow.keras.callbacks import EarlyStopping
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Input, Dense
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.optimizers import SGD
+from tensorflow.keras.layers import Dropout
+from tensorflow.keras import regularizers
 
 class NeuralNetwork(ABC):
     __inputNeuronsNumber = 2
     __outputNeuronsNumber = 2
     __batch_size = 32
     __epochsNumber = 10
-    __neuronsNumber = 1
     __inputSet = None
     __outputSet = None
     __trainsetInput = None
@@ -21,40 +21,46 @@ class NeuralNetwork(ABC):
     __testsetOutput = None 
     __validationsetInput = None
     __validationsetOutput = None
+    __inputLayer = None
+    __modelHiddenLayers = None
+    __model = None
+    __isEarlyStoppingActivated = False
+    __earlyStoppingCallback = None
+    __isFirstHiddenLayer = True
     
-    def __init__(self, firstLayerNeuronsNumber : int, inputSet, outputSet):
+    def __init__(self, inputSet, outputSet):
         if type(self) is NeuralNetwork:
             raise NotImplementedError("Non è possibile creare un'istanza della classe astratta!")
-
-        if self.__isNeuronsNumberValid(firstLayerNeuronsNumber) == False :
-            raise ValueError("Il valore deve essere maggiore o uguale a 0")
-
+        
         self.__inputSet = inputSet
         self.__outputSet = outputSet
-        self.__neuronsNumber = firstLayerNeuronsNumber
-        self.__modelSetup()
+        self.__inputLayer = Input(shape=(self.__inputNeuronsNumber,))
         self.__trainTestValidationSetsSetup()
 
     def addDenseLayer(self, neuronsNumber: int):
         if self.__isNeuronsNumberValid(neuronsNumber) == False :
             return
         
-        self.__modelLayers = Dense(64, activation="relu")(self.__modelLayers)
+        if self.__isFirstHiddenLayer :
+            self.__isFirstHiddenLayer = False
+            self.__modelHiddenLayers = Dense(neuronsNumber, activation="relu")(self.__inputLayer)
+        else :
+            self.__modelHiddenLayers = Dense(neuronsNumber, activation="relu")(self.__modelHiddenLayers)
 
     def addDenseLayerWithL1Regularization(self, neuronsNumber: int, penaltyValue = float):
         if self.__isNeuronsNumberValid(neuronsNumber) == False or \
             self.__isLRegularizationPenaltyValueValid(penaltyValue) == False :
             return
         
-        self.__modelLayers = Dense(neuronsNumber, activation="relu", 
-                                   kernel_regularizer=regularizers.l1(penaltyValue))(self.__modelLayers)
+        self.__modelHiddenLayers = Dense(neuronsNumber, activation="relu", 
+                                   kernel_regularizer=regularizers.l1(penaltyValue))(self.__modelHiddenLayers)
 
     def addDenseLayerWithL2Regularization(self, neuronsNumber: int, penaltyValue = float):
         if self.__isNeuronsNumberValid(neuronsNumber) == False or \
             self.__isLRegularizationPenaltyValueValid(penaltyValue) == False :
             return
-        self.__modelLayers = Dense(neuronsNumber, activation="relu", 
-                                   kernel_regularizer=regularizers.l2(penaltyValue))(self.__modelLayers)
+        self.__modelHiddenLayers = Dense(neuronsNumber, activation="relu", 
+                                   kernel_regularizer=regularizers.l2(penaltyValue))(self.__modelHiddenLayers)
     
     def setEpochsNumber(self, epochsNumber):
         if self.__isEpochsNumberValid(epochsNumber) == False :
@@ -72,7 +78,7 @@ class NeuralNetwork(ABC):
         if self.__isDropoutRateValueValid(dropoutRate) == False :
             return
         
-        self.__modelLayers = Dropout(dropoutRate)(self.__modelLayers)
+        self.__modelHiddenLayers = Dropout(dropoutRate)(self.__modelHiddenLayers)
 
     def setEarlyStopping(self, patienceValue: int):
         if self.__isEarlystoppingPatienceValueValid(patienceValue) == False :
@@ -88,38 +94,16 @@ class NeuralNetwork(ABC):
     def removeEarlyStopping(self):
         self.__isEarlyStoppingActivated = False
 
-    def __modelSetup(self):
-        inputLayer = Input(shape=(self.__inputNeuronsNumber,))
-        self.__modelLayers = Dense(self.__neuronsNumber, activation="relu")(inputLayer)
-        outputLayer = Dense(self.__outputNeuronsNumber, activation="linear")(self.__modelLayers)
-        self.__model = Model(inputs = inputLayer, outputs = outputLayer)
-        print(self.__model.summary())
-
-    def __trainTestValidationSetsSetup(self) :
-        trainsetProportion = int(2 * len(self.__inputSet) / 3)  # 2/3 per il train
-        self.__trainsetInput, self.__trainsetOutput = input[:trainsetProportion], self.__outputSet[:trainsetProportion]
-        self.__testsetInput, self.__testsetOutput = input[trainsetProportion:], self.__outputSet[trainsetProportion:] 
-
-        self.__trainsetInput = self.__trainsetInput.astype("float32")
-        testsetInput = testsetInput.astype("float32")
-
-        self.__trainsetOutput = self.__trainsetOutput.astype("float32")
-        testsetOutput = testsetOutput.astype("float32")
-
-        print(testsetInput.shape)
-
-        sampleToReserve = 10000
-        self.__validationsetInput = self.__trainsetInput[-sampleToReserve:]
-        self.__validationsetOutput = self.__trainsetOutput[-sampleToReserve:]
-        self.__trainsetInput = self.__trainsetInput[:-sampleToReserve]
-        self.__trainsetOutput = self.__trainsetOutput[:-sampleToReserve]
-    
     def fitAdam(self, learning_rate):
+        self.__modelSetup()
+        
         self.__model.compile(
             optimizer= Adam(learning_rate = learning_rate),
             loss = "mean_squared_error",
             metrics = ["mean_squared_error"],
         )
+
+        print(self.__model)
 
         self.__fit()
 
@@ -128,12 +112,42 @@ class NeuralNetwork(ABC):
             self.__isSGDMomentumValid(sgdMomentumValue) == False :
             return
         
+        self.__modelSetup()
+        
         self.__model.compile(
             optimizer = SGD(learning_rate = learning_rate, momentum = sgdMomentumValue), 
             loss = "mean_squared_error", 
             metrics = ["mean_squared_error"])
         
         self.__fit()
+
+    def __modelSetup(self):
+        outputLayer = Dense(self.__outputNeuronsNumber, activation="linear")(self.__modelHiddenLayers)
+        self.__model = Model(inputs = self.__inputLayer, outputs = outputLayer)
+        print(self.__model.summary())
+
+    def __trainTestValidationSetsSetup(self) :
+        trainsetProportion = int(2 * len(self.__inputSet) / 3)  # 2/3 per il train
+        self.__trainsetInput, self.__trainsetOutput = self.__inputSet[:trainsetProportion], self.__outputSet[:trainsetProportion]
+        self.__testsetInput, self.__testsetOutput = self.__inputSet[trainsetProportion:], self.__outputSet[trainsetProportion:] 
+
+        self.__trainsetInput = self.__trainsetInput.astype("float32")
+        self.__testsetInput = self.__testsetInput.astype("float32")
+
+        self.__trainsetOutput = self.__trainsetOutput.astype("float32")
+        self.__testsetOutput = self.__testsetOutput.astype("float32")
+        
+        sampleToReserve = 10000
+        self.__validationsetInput = self.__trainsetInput[-sampleToReserve:]
+        self.__validationsetOutput = self.__trainsetOutput[-sampleToReserve:]
+        self.__trainsetInput = self.__trainsetInput[:-sampleToReserve]
+        self.__trainsetOutput = self.__trainsetOutput[:-sampleToReserve]
+
+    def _setInputNeuronsNumber(self, inputNeuronsNumber : int):
+        self.__inputNeuronsNumber = inputNeuronsNumber
+
+    def _setOutputNeuronsNumber(self, outputNeuronsNumber : int):
+        self.__outputNeuronsNumber = outputNeuronsNumber
         
     def __fit(self):
         print("Fit model on training data")
@@ -142,8 +156,8 @@ class NeuralNetwork(ABC):
             self.__trainsetOutput,
             batch_size = self.__batch_size,
             epochs = self.__epochsNumber,
-            callbacks = [self.__earlyStoppingCallback],
-            validation_data=(self.__validationsetInput, self.__validationsetOutput),
+            callbacks = self.__earlyStoppingCallback if self.__isEarlyStoppingActivated else [],
+            validation_data = (self.__validationsetInput, self.__validationsetOutput),
         )
 
         print(history.history)
@@ -153,7 +167,7 @@ class NeuralNetwork(ABC):
         print("test loss, test acc:", results)
 
         print("Generate predictions for 3 samples")
-        predictions = self.__model(self.__testsetInput)
+        predictions = self.__model(self.__testsetInput).numpy()
         print("predictions shape:", predictions.shape)
 
         r2 = r2_score(self.__testsetOutput, predictions)

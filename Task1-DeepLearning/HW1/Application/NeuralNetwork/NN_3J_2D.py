@@ -1,9 +1,8 @@
-
-from Application.NeuralNetwork import NeuralNetwork
+from NeuralNetwork.NeuralNetwork import NeuralNetwork
 
 class NN_3J_2D(NeuralNetwork):
-    __inputNeuronsNumber = 3
-    __outputNeuronsNumber = 2
     
-    def __init__(self, firstLayerNeuronsNumber : int, inputSet, outputSet):
-        super().__init__(firstLayerNeuronsNumber, inputSet, outputSet)
+    def __init__(self, inputSet, outputSet):
+        self._setInputNeuronsNumber(3)
+        self._setOutputNeuronsNumber(2)
+        super().__init__(inputSet, outputSet)

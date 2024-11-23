@@ -10,19 +10,19 @@ class CSVParser_3J_2D(CSVParser_2J_2D):
         super().__init__()
 
     def getInput(self) -> List[List[np.float64]]:
-        self.__input = self._parsedCSV[[self._getInput0ColumnName(), self._getInput1ColumnName(), 
+        input = self._getParsedCSV()[[self._getInput0ColumnName(), self._getInput1ColumnName(), 
                                          self.__input2ColumnName]].values
         
-        return self.__input
+        return input
 
     def getOutput(self) -> List[List[np.float64]]:
-        self.__output = self._parsedCSV[[self._getOutput0ColumnName(), self._getOutput1ColumnName()]].values
+        output = self._getParsedCSV()[[self._getOutput0ColumnName(), self._getOutput1ColumnName()]].values
         
-        return self.__output
+        return output
     
     def _getInput2ColumnName(self) -> str:
         return self.__input2ColumnName
     
-    def __setCSVFileFinalPath(self, __csv_file_path : str) :
-        self.__csv_file_path = os.path.join(self.__csv_file_path, 'r3', 'r3_20_100k.csv')
+    def _setCSVFileFinalPath(self) :
+        self._setCSVFilePath(os.path.join(self._getCSVFilePath(), 'r3', 'r3_24_100k.csv'))
         return;

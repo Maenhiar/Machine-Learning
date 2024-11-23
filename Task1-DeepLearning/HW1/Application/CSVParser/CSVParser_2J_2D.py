@@ -4,8 +4,7 @@ from typing import List
 import pandas as pd
 
 class CSVParser_2J_2D():
-    __script_dir = os.path.dirname(os.path.abspath(__file__))
-    __parent_dir = os.path.dirname(__script_dir)
+    __parent_dir = os.path.abspath(os.path.join(os.getcwd()))
     __csv_file_path = os.path.join(__parent_dir, "Dataset", "Training-set")
     __input0ColumnName = "j0"
     __input1ColumnName = " j1"
@@ -13,23 +12,23 @@ class CSVParser_2J_2D():
     __output1ColumnName = " ee_y"
     __separator = ";"
     __headerValue = 0
-    _parsedCSV = None
+    __parsedCSV = None
         
     def __init__(self):
-        self.__setCSVFileFinalPath(self.__csv_file_path)
+        self._setCSVFileFinalPath()
         
         try:
-            self._parsedCSV = pd.read_csv(self.__csv_file_path, sep = self.__separator, header = self.__headerValue)
+            self.__parsedCSV = pd.read_csv(self.__csv_file_path, sep = self.__separator, header = self.__headerValue)
         except Exception as e:
             print(f"{e}")
             raise
         
     def getInput(self) -> List[List[np.float64]]:
-        input = self._parsedCSV[[self.__input0ColumnName, self.__input1ColumnName]].values
+        input = self.__parsedCSV[[self.__input0ColumnName, self.__input1ColumnName]].values
         return input
 
     def getOutput(self) -> List[List[np.float64]]:
-        output = self._parsedCSV[[self.__output0ColumnName, self.__output1ColumnName]].values
+        output = self.__parsedCSV[[self.__output0ColumnName, self.__output1ColumnName]].values
         return output
     
     def _getInput0ColumnName(self) -> str:
@@ -43,7 +42,16 @@ class CSVParser_2J_2D():
     
     def _getOutput1ColumnName(self) -> str:
         return self.__output1ColumnName
+    
+    def _getCSVFilePath(self) -> str:
+        return self.__csv_file_path
+    
+    def _getParsedCSV(self) -> str:
+        return self.__parsedCSV
+
+    def _setCSVFilePath(self, csv_file_path):
+        self.__csv_file_path = csv_file_path
         
-    def __setCSVFileFinalPath(self, __csv_file_path : str) :
+    def _setCSVFileFinalPath(self) :
         self.__csv_file_path = os.path.join(self.__csv_file_path, 'r2', 'r2_21_100k.csv')
         return;
