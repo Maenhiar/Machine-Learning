@@ -45,7 +45,7 @@ class KFoldCrossValidation():
             endTime = time.time()
             modelsTrainingTime.append(endTime - startTime)
 
-            modelsHistory.append(history)
+            modelsHistory.append(history.history)
 
             mse = modelsList[i].getModel().evaluate(validationFoldInput, validationFoldOutput)
             mseScores.append(mse)

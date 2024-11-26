@@ -1,5 +1,6 @@
 import numpy as np
 import tensorflow as tf
+from Charts.LossPlotter import LossPlotter
 from NeuralNetwork.FKNNFactory import FKNNFactory
 from keras.layers import InputLayer
 from PerformaceEvaluation.KFoldCrossValidation import KFoldCrossValidation
@@ -14,7 +15,7 @@ for i in range(3):
     nn2J_2D.addDenseLayer(64)
     nn2J_2D.addDenseLayer(64)
     nn2J_2D.setEarlyStopping(10)
-    nn2J_2D.setEpochsNumber(1)
+    nn2J_2D.setEpochsNumber(100)
     nn2J_2D.setBatchSize(32)
     nn2J_2D.finalizeAdamModel(0.001)
     modelsList.append(nn2J_2D)
@@ -29,7 +30,7 @@ for i in range(3):
     nn2J_2D.addDenseLayer(64)
     nn2J_2D.addDenseLayer(64)
     nn2J_2D.setEarlyStopping(10)
-    nn2J_2D.setEpochsNumber(1)
+    nn2J_2D.setEpochsNumber(100)
     nn2J_2D.setBatchSize(32)
     nn2J_2D.finalizeAdamModel(0.0001)
     modelsList.append(nn2J_2D)
@@ -44,7 +45,7 @@ for i in range(3):
     nn2J_2D.addDenseLayer(64)
     nn2J_2D.addDenseLayer(64)
     nn2J_2D.setEarlyStopping(10)
-    nn2J_2D.setEpochsNumber(1)
+    nn2J_2D.setEpochsNumber(100)
     nn2J_2D.setBatchSize(32)
     nn2J_2D.finalizeAdamModel(0.003)
     modelsList.append(nn2J_2D)
@@ -75,12 +76,14 @@ for obj in modelsPerformances:
     print("\nInformazioni sul modello:")
     print(f"Funzione di loss utilizzata: {obj.getModel().loss}")
     print(f"Tipo di ottimizzatore utilizzato: {obj.getModel().optimizer.__class__.__name__}")
-    
+
     # Parametri dell'ottimizzatore
     optimizer_config = obj.getModel().optimizer.get_config()  # Ottieni la configurazione dell'ottimizzatore
     print("Parametri dell'ottimizzatore:")
     for param, value in optimizer_config.items():
         print(f"  {param}: {value}")
+    
+    LossPlotter.plotLoss(obj.getModelHistory())
 
 bestModel = modelsPerformances[0].getModel()
 
