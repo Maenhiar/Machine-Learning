@@ -6,7 +6,6 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.optimizers import SGD
 from tensorflow.keras.layers import Dropout
 from tensorflow.keras import regularizers
-from PerformaceEvaluation.KFoldCrossValidation import KFoldCrossValidation
 
 class NeuralNetwork(ABC):
     __inputNeuronsNumber = 2
@@ -19,18 +18,47 @@ class NeuralNetwork(ABC):
     __isEarlyStoppingActivated = False
     __earlyStoppingCallback = None
     __isFirstHiddenLayer = True
-    __kfoldCrossValidation = None
+    __trainingSetInput = None
+    __trainingSetOutput = None
+    __testSetInput = None
+    __testSetOutput = None
+    __nnLoss = "mean_squared_error"
     
-    def __init__(self, kfoldCrossValidation : KFoldCrossValidation):
+    def __init__(self, trainingSetInput, trainingSetOutput, testSetInput, testSetOutput):
         if type(self) is NeuralNetwork:
             raise NotImplementedError("Non è possibile creare un'istanza della classe astratta!")
         
-        if kfoldCrossValidation is None:
-            raise ValueError("L'oggetto non può essere None.")
-        
-        self.__kfoldCrossValidation = kfoldCrossValidation
+        self.__trainingSetInput = trainingSetInput
+        self.__trainingSetOutput = trainingSetOutput
+        self.__testSetInput = testSetInput
+        self.__testSetOutput = testSetOutput
+
         self.__inputLayer = Input(shape=(self.__inputNeuronsNumber,))
 
+    def getTraingSetInput(self):
+        return self.__trainingSetInput
+    
+    def getTraingSetOutput(self):
+        return self.__trainingSetOutput
+    
+    def getTestSetInput(self):
+        return self.__testSetInput
+    
+    def getTestSetOutput(self):
+        return self.__testSetOutput
+    
+    def getEarlyStopping(self):
+        return self.__earlyStoppingCallback if self.__isEarlyStoppingActivated else []
+    
+    def getBatchSize(self):
+        return self.__batchSize
+    
+    def getEpochsNumber(self):
+        return self.__epochsNumber
+    
+    def getModel(self):
+        return self.__model
+    
     def addDenseLayer(self, neuronsNumber: int):
         if self.__isNeuronsNumberValid(neuronsNumber) == False :
             return
@@ -82,24 +110,22 @@ class NeuralNetwork(ABC):
         self.__earlyStoppingCallback = [EarlyStopping(
             monitor='val_loss', 
             patience = patienceValue,
-            restore_best_weights = True
-        )] if self.__isEarlyStoppingActivated else []
+            restore_best_weights = True)]
 
     def removeEarlyStopping(self):
         self.__isEarlyStoppingActivated = False
 
-    def fitAdam(self, learning_rate):
+    def finalizeAdamModel(self, learning_rate):
         self.__modelSetup()
         
         self.__model.compile(
             optimizer= Adam(learning_rate = learning_rate),
-            loss = "mean_squared_error",
-            metrics = ["mean_squared_error"],
-        )
+            loss = self.__nnLoss,
+            metrics = [self.__nnLoss])
+        
+        return self
 
-        self.__fit()
-
-    def fitSGD(self, learning_rate, sgdMomentumValue):
+    def finalizeSGDModel(self, learning_rate, sgdMomentumValue):
         if self.__isSGDLearningRateValid(learning_rate) == False or \
             self.__isSGDMomentumValid(sgdMomentumValue) == False :
             return
@@ -108,10 +134,10 @@ class NeuralNetwork(ABC):
         
         self.__model.compile(
             optimizer = SGD(learning_rate = learning_rate, momentum = sgdMomentumValue), 
-            loss = "mean_squared_error", 
-            metrics = ["mean_squared_error"])
+            loss = self.__nnLoss, 
+            metrics = [self.__nnLoss])
         
-        self.__fit()
+        return self
 
     def __modelSetup(self):
         outputLayer = Dense(self.__outputNeuronsNumber, activation="linear")(self.__modelHiddenLayers)
@@ -123,10 +149,6 @@ class NeuralNetwork(ABC):
     def _setOutputNeuronsNumber(self, outputNeuronsNumber : int):
         self.__outputNeuronsNumber = outputNeuronsNumber
         
-    def __fit(self):
-        self.__kfoldCrossValidation.performKFoldCrossValidation(self.__model, self.__batchSize, self.__epochsNumber, 
-                                                                    self.__earlyStoppingCallback)
-
     def __isNeuronsNumberValid(self, neuronsNumber: int):
         return neuronsNumber >= 0
     

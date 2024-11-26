@@ -22,7 +22,7 @@ class FKNNFactory():
         csvParser = CSVParser_2J_2D(__csvTestSetFilePath)
         testSetInput = csvParser.getInput()
         testSetOutput = csvParser.getOutput()
-        return NN_2J_2D(KFoldCrossValidation(trainingSetInput, trainingSetOutput, testSetInput, testSetOutput))
+        return NN_2J_2D(trainingSetInput, trainingSetOutput, testSetInput, testSetOutput)
 
     def create3J_2D_NN(self):
         __csvTrainingSetFilePath = os.path.join(self.__csvTrainingSetFilePath, 'r3', 'r3_24_100k.csv')
@@ -34,7 +34,7 @@ class FKNNFactory():
         csvParser = CSVParser_3J_2D(__csvTestSetFilePath)
         testSetInput = csvParser.getInput()
         testSetOutput = csvParser.getOutput()
-        return NN_3J_2D(KFoldCrossValidation(trainingSetInput, trainingSetOutput, testSetInput, testSetOutput))
+        return NN_3J_2D(trainingSetInput, trainingSetOutput, testSetInput, testSetOutput)
 
     def create5J_3D_NN(self):
         __csvTrainingSetFilePath = os.path.join(self.__csvTrainingSetFilePath, 'r5', 'r5_25_100k.csv')
@@ -46,4 +46,4 @@ class FKNNFactory():
         csvParser = CSVParser_5J_3D(__csvTestSetFilePath)
         testSetInput = csvParser.getInput()
         testSetOutput = csvParser.getOutput()
-        return NN_5J_3D(KFoldCrossValidation(trainingSetInput, trainingSetOutput, testSetInput, testSetOutput))
+        return NN_5J_3D(trainingSetInput, trainingSetOutput, testSetInput, testSetOutput)

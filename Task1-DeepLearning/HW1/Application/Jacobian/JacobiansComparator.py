@@ -1,47 +1,40 @@
+import numpy as np
 import tensorflow as tf
 
-# Parametri del braccio
+# Parametri del manipolatore
 L1 = 0.1
 L2 = 0.1
 
-def compute_jacobian(model, theta1, theta2):
-    """
-    Calcola la matrice Jacobiana numerica utilizzando TensorFlow.
-    """
-    with tf.GradientTape(persistent=True) as tape:
-        tape.watch(theta1)  # Registriamo theta1
-        tape.watch(theta2)  # Registriamo theta2
-        
-        # Calcoliamo l'output della rete (x, y) per gli angoli theta1 e theta2
-        output = model(tf.stack([theta1, theta2], axis=0))
-
-    # Calcoliamo il Jacobiano come la derivata dell'output rispetto a theta1 e theta2
-    jacobian = tape.jacobian(output, [theta1, theta2])
-    return jacobian
-
-# Eseguiamo il calcolo per un set di angoli di esempio
-theta1_test = tf.Variable(0.5)  # Angolo theta1
-theta2_test = tf.Variable(0.5)  # Angolo theta2
-
-# Calcoliamo il Jacobiano numerico
-jacobian_numerical = compute_jacobian(model, theta1_test, theta2_test)
-
-# Jacobiano analitico (calcolato manualmente)
-def jacobian_analytical(theta1, theta2):
-    """
-    Calcola la matrice Jacobiana analitica per un braccio robotico a 2 DOF.
-    """
-    J11 = -L1 * tf.sin(theta1) - L2 * tf.sin(theta1 + theta2)
-    J12 = -L2 * tf.sin(theta1 + theta2)
-    J21 = L1 * tf.cos(theta1) + L2 * tf.cos(theta1 + theta2)
-    J22 = L2 * tf.cos(theta1 + theta2)
-    
-    return tf.stack([[J11, J12], [J21, J22]])
+# Funzione di Forward Kinematics (analitica)
+def FK_analytical(theta):
+    theta1, theta2 = theta
+    x = L1 * np.cos(theta1) + L2 * np.cos(theta1 + theta2)
+    y = L1 * np.sin(theta1) + L2 * np.sin(theta1 + theta2)
+    return np.array([x, y])
 
 # Jacobiano analitico
-J_analytical = jacobian_analytical(0.5, 0.5)
+def Jacobian_analytical(theta):
+    theta1, theta2 = theta
+    J = np.array([
+        [-L1 * np.sin(theta1) - L2 * np.sin(theta1 + theta2), -L2 * np.sin(theta1 + theta2)],
+        [L1 * np.cos(theta1) + L2 * np.cos(theta1 + theta2), L2 * np.cos(theta1 + theta2)]
+    ])
+    return J
 
-# Mostriamo i risultati
-print("Jacobiano Analitico:\n", J_analytical)
-print("\nJacobiano Numerico (TensorFlow):\n", jacobian_numerical[0].numpy())  # Prendiamo il primo (e unico) valore del risultato
-print("\nDifferenza tra Jacobiani:\n", np.abs(J_analytical - jacobian_numerical[0].numpy()))
+# Funzione di Forward Kinematics
+def FK(model, theta):
+    # Ridimensiona theta per batch di dimensione 1
+    t = tf.reshape(theta, shape=(1, 2))  # theta ha dimensione (2,) per un problema 2D
+    out = model(t)  # Passa l'input al modello (reti neurale)
+    # Reshape dell'output per ottenere un vettore 1D con le coordinate finali
+    out = tf.reshape(out, shape=(2,))
+    return out
+
+# Calcolo del Jacobiano usando TensorFlow
+@tf.function
+def FK_Jacobian(model, x):
+    with tf.GradientTape(persistent=True) as tape:
+        tape.watch(x)  # Teniamo traccia delle derivate rispetto a x
+        y = FK(model, x)  # Calcola la posizione finale dal modello
+    # Restituisci il Jacobiano, che è la derivata della posizione rispetto a x
+    return tape.jacobian(y, x)
