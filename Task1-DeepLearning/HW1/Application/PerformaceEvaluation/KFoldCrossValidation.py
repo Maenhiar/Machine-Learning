@@ -2,15 +2,17 @@ import time
 import numpy as np
 from sklearn.model_selection import KFold
 import tensorflow as tf
-from Jacobian.JacobiansComparator import FK_Jacobian, Jacobian_analytical
 
 class KFoldCrossValidation():
-    __mseScores = []  # Lista per raccogliere gli MSE per ogni fold
-    __finalMSE = [] # Inizializza il test set per la valutazione finale
 
     def performKFoldCrossValidation(self, modelsList: list):
         if len(modelsList) != 3:
             raise ValueError("La lista deve contenere esattamente 3 modelli.")
+        
+        mseScores = []
+        testSetMSEScores = []
+        modelsHistory = []
+        modelsTrainingTime = []
                              
         trainingSetInput = modelsList[0].getTraingSetInput()
         trainsetOuput = modelsList[0].getTraingSetOutput()
@@ -22,13 +24,12 @@ class KFoldCrossValidation():
         weights = modelsList[0].getModel().get_weights()
 
         i = 0
+        startTime = time.time()
         for train_index, val_index in kFoldCrossValidation.split(trainingSetInput):
             trainingFoldInput = trainingSetInput[train_index]
             validationFoldInput = trainingSetInput[val_index]
             trainingFoldOutput = trainsetOuput[train_index]
             validationFoldOutput = trainsetOuput[val_index]
-
-            start_time = time.time()
 
             modelsList[i].getModel().set_weights(weights)  
             
@@ -41,42 +42,57 @@ class KFoldCrossValidation():
                 validation_data=(validationFoldInput, validationFoldOutput)
             )
 
-            end_time = time.time()
+            endTime = time.time()
+            modelsTrainingTime.append(endTime - startTime)
 
-            # Calcola e stampa la durata dell'allenamento
-            training_time = end_time - start_time
-            print(f'Tempo di allenamento: {training_time:.4f} secondi')
+            modelsHistory.append(history)
 
-            print(history.history)
+            mse = modelsList[i].getModel().evaluate(validationFoldInput, validationFoldOutput)
+            mseScores.append(mse)
 
-            mse_val = modelsList[i].getModel().evaluate(validationFoldInput, validationFoldOutput, verbose=0)
-            self.__mseScores.append(mse_val)
-
-            self.__finalMSE.append(modelsList[i].getModel().evaluate(testSetInput, testSetOutput))
+            testSetMSE = modelsList[i].getModel().evaluate(testSetInput, testSetOutput)
+            testSetMSEScores.append(testSetMSE)
 
             i = i + 1
 
-        # Calcola la media dell'MSE sui fold di validazione
-        print(f"Mean Validation MSE across all folds: {np.mean(self.__mseScores)}")
+        finalMSE = np.mean(mseScores)
+        finalTRrainingSetMSE = np.mean(testSetMSEScores)
 
-        # Calcola la valutazione finale del modello sui test set
-        print(f"Final MSE on Test Set: {np.mean(self.__finalMSE)}")
+        bestPerformanceModelIndex = testSetMSEScores.index(min(testSetMSEScores))
 
-        bestPerformanceModelIndex = self.__finalMSE.index(min(self.__finalMSE))
-        model = modelsList[bestPerformanceModelIndex].getModel()
+        bestModel = self.BestModelPerformances(finalMSE, finalTRrainingSetMSE, 
+                                                modelsHistory[bestPerformanceModelIndex], 
+                                                    modelsTrainingTime[bestPerformanceModelIndex],
+                                                        modelsList[bestPerformanceModelIndex].getModel())
         
-        # Calcolare la posizione finale per theta
-        theta = tf.constant([0.5, 1.0], dtype=tf.float32)  # Angoli di esempio
+        return bestModel     
 
-        # Jacobiano computato tramite il modello
-        jacobian_computed = FK_Jacobian(model, theta)
+    class BestModelPerformances():
+        __finalMSE = None
+        __finalTRrainingSetMSE = None
+        __modelHistory = None
+        __trainingTime = 0
+        __model = None
 
-        # Jacobiano analitico
-        theta_numpy = theta.numpy()  # Converti theta in formato numpy per il calcolo analitico
-        jacobian_analytical = Jacobian_analytical(theta_numpy)
-
-        # Confronta i Jacobiani
-        print("Jacobiano computato:\n", jacobian_computed.numpy())
-        print("Jacobiano analitico:\n", jacobian_analytical)
-        print("Differenza tra i Jacobiani:", np.abs(jacobian_computed.numpy() - jacobian_analytical))
+        def __init__(self, finalMSE, finalTrainingSetMSE, modelHistory, trainingTime, model):
+            self.__finalMSE = finalMSE
+            self.__finalTRrainingSetMSE = finalTrainingSetMSE
+            self.__modelHistory = modelHistory
+            self.__trainingTime = trainingTime
+            self.__model = model
+        
+        def getFinalMSE(self):
+            return self.__finalMSE
+        
+        def getFinalTrainingSetMSE(self):
+            return self.__finalTRrainingSetMSE
+        
+        def getModelHistory(self):
+            return self.__modelHistory
+        
+        def getTrainingTime(self):
+            return self.__trainingTime
+        
+        def getModel(self):
+            return self.__model
 
