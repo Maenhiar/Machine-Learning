@@ -1,27 +1,37 @@
 import time
 import numpy as np
 from sklearn.model_selection import KFold
-import tensorflow as tf
 
 class KFoldCrossValidation():
+    """
+    This class performs the K-Fold crossvalidation of the model
+    passed as input.
+    """
 
-    def performKFoldCrossValidation(self, modelsList: list):
+    def performKFoldCrossValidation(self, modelsList: list, trainingSetInput, trainsetOuput, testSetInput, testSetOutput):
+        """
+        Performs the K-Fold crossvalidation of the model.
+        The dataset is splitted in training set (2/3 of the dataset)
+        and validation set (1/3 of the dataset).
+        
+        Args:
+            modelsList: a list of 3 models (one for each crossvalidation fold).
+                        It is necessary due to the impossibility to clone a keras
+                        model without having any error or side effect.
+        
+        Returns:
+            bestModel: an object containing the model that best performed 
+                        during the crossvalidation along with its performances parameters.
+        """
         if len(modelsList) != 3:
-            raise ValueError("La lista deve contenere esattamente 3 modelli.")
+            raise ValueError("The list must contain three models of the same type.")
         
         mseScores = []
         testSetMSEScores = []
         modelsHistory = []
-                                     
-        trainingSetInput = modelsList[0].getTraingSetInput()
-        trainsetOuput = modelsList[0].getTraingSetOutput()
-        testSetInput = modelsList[0].getTestSetInput()
-        testSetOutput = modelsList[0].getTestSetOutput()
-
-        kFoldCrossValidation = KFold(n_splits = 3, shuffle = True)
-
         weights = modelsList[0].getModel().get_weights()
-
+        kFoldCrossValidation = KFold(n_splits = 3, shuffle = True)
+        
         i = 0
         startTime = time.time()
         for train_index, val_index in kFoldCrossValidation.split(trainingSetInput):
@@ -30,6 +40,8 @@ class KFoldCrossValidation():
             trainingFoldOutput = trainsetOuput[train_index]
             validationFoldOutput = trainsetOuput[val_index]
 
+            """Necessary if we want that each model is initialized 
+                with the same weights without incurring in any error."""
             modelsList[i].getModel().set_weights(weights)  
             
             history = modelsList[i].getModel().fit(
@@ -66,6 +78,9 @@ class KFoldCrossValidation():
         return bestModel     
 
     class BestModelPerformances():
+        """
+        This class represents a model along with its performance parameters.
+        """
         __finalMSE = None
         __finalTestSetMSE = None
         __modelHistory = None

@@ -4,98 +4,129 @@ from Charts.LossPlotter import LossPlotter
 from NeuralNetwork.FKNNFactory import FKNNFactory
 from keras.layers import InputLayer
 from PerformaceEvaluation.KFoldCrossValidation import KFoldCrossValidation
-from Jacobian.JacobiansComparator import FK_Jacobian, Jacobian_analytical
+from Jacobian.JacobiansComparator import FK_Jacobian, computeAnalyticalJacobian
 
-modelsList = []
-modelsPerformances = []
 
-for i in range(3):
-    nn2J_2D = FKNNFactory().create2J_2D_NN()
-    nn2J_2D.addDenseLayer(64)
-    nn2J_2D.addDenseLayer(64)
-    nn2J_2D.addDenseLayer(64)
-    nn2J_2D.setEarlyStopping(10)
-    nn2J_2D.setEpochsNumber(100)
-    nn2J_2D.setBatchSize(32)
-    nn2J_2D.finalizeAdamModel(0.001)
-    modelsList.append(nn2J_2D)
-    nn2J_2D.getModel().summary()
+def computeJacobians(bestModel):
+    theta = tf.constant([0.5, 1.0], dtype=tf.float32)
+    computedJacobian = FK_Jacobian(bestModel, theta)
+    numpyTheta = theta.numpy()
+    jacobian_analytical = computeAnalyticalJacobian(numpyTheta)
+    
+    print("Jacobiano analitico:\n", jacobian_analytical)
+    print("Jacobiano computato:\n", computedJacobian.numpy())
+    print("Differenza tra i Jacobiani:", np.abs(computedJacobian.numpy() - jacobian_analytical))
 
-modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList)
-modelsList.clear()
-modelsPerformances.append(modelPerformances)
+def printModelDataAndPerformances(model):
+    model.getModel().summary()
 
-for i in range(3):
-    nn2J_2D = FKNNFactory().create2J_2D_NN()
-    nn2J_2D.addDenseLayer(64)
-    nn2J_2D.addDenseLayer(64)
-    nn2J_2D.addDenseLayer(64)
-    nn2J_2D.addDenseLayer(64)
-    nn2J_2D.setEarlyStopping(10)
-    nn2J_2D.setEpochsNumber(100)
-    nn2J_2D.setBatchSize(32)
-    nn2J_2D.finalizeAdamModel(0.001)
-    modelsList.append(nn2J_2D)
-
-modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList)
-modelsList.clear()
-modelsPerformances.append(modelPerformances)
-
-modelsPerformances.sort(key = lambda model : model.getFinalTestSetMSE(), reverse = False)
-print("Model performances sorted by best to worst are the following:")
-
-# Itera su ogni oggetto della lista e stampa informazioni sul modello
-for obj in modelsPerformances:
-    obj.getModel().summary()
-    print(obj.getFinalMSE())
-    print(obj.getFinalTestSetMSE())
-    print(f'Tempo di allenamento: {obj.getTrainingTime():.4f} secondi')
-    print("\nLayer del modello:")
-    for layer in obj.getModel().layers:
+    print("Final MSE = ", model.getFinalMSE())
+    print("Final test ste MSE = ", model.getFinalTestSetMSE())
+    print(f'Training time: {model.getTrainingTime():.4f} secondi')
+    
+    print("\Model layers:")
+    for layer in model.getModel().layers:
         if isinstance(layer, InputLayer):
-            # Gestire separatamente il layer di input
-            print(f"Layer: {layer.name}, Tipo: {layer.__class__.__name__}, Funzione di attivazione: N/A")
+            print(f"Layer: {layer.name}, Tipo: {layer.__class__.__name__}, Activation function: N/A")
         else:
-            # Gli altri layer hanno output_shape
-            print(f"Layer: {layer.name}, Tipo: {layer.__class__.__name__}, Funzione di attivazione: {layer.activation.__name__ if layer.activation else 'N/A'}")
+            print(f"Layer: {layer.name}, Tipo: {layer.__class__.__name__}, Activation function: {layer.activation.__name__ if layer.activation else 'N/A'}")
 
-    # Informazioni su loss e ottimizzatore
-    print("\nInformazioni sul modello:")
-    print(f"Funzione di loss utilizzata: {obj.getModel().loss}")
+    print(f"Loss function: {model.getModel().loss}")
 
-    # Parametri dell'ottimizzatore
-    optimizer_config = obj.getModel().optimizer.get_config()  # Ottieni la configurazione dell'ottimizzatore
-    print("Parametri dell'ottimizzatore:")
+    optimizer_config = model.getModel().optimizer.get_config()
+    print("Optimizer parameters:")
     for param, value in optimizer_config.items():
         print(f"  {param}: {value}")
     
-    LossPlotter.plotLoss(obj.getModelHistory())
+    LossPlotter.plotLoss(model.getModelHistory())
+
+modelsPerformances = []
+
+modelsList = []
+for i in range(3):
+    nn2J_2D = FKNNFactory().create2J_2D_NN()
+    nn2J_2DModel = nn2J_2D["model"]
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.setEarlyStopping(10)
+    nn2J_2DModel.setEpochsNumber(1)
+    nn2J_2DModel.setBatchSize(32)
+    nn2J_2DModel.finalizeAdamModel(0.001)
+    modelsList.append(nn2J_2DModel)
+    nn2J_2DModel.getModel().summary()
+
+modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList, nn2J_2D["training-set-input"],
+                                                                        nn2J_2D["training-set-output"], nn2J_2D["test-set-input"],
+                                                                            nn2J_2D["test-set-output"])
+modelsList.clear()
+
+modelsPerformances.append(modelPerformances)
+modelsPerformances.sort(key = lambda model : model.getFinalTestSetMSE(), reverse = False)
 
 bestModel = modelsPerformances[0].getModel()
+print("Model performances sorted by best to worst are the following:")
+for modelPerformances in modelsPerformances:
+    printModelDataAndPerformances(modelPerformances)
 
-"""nn3J_2D = FKNNFactory().create3J_2D_NN()
-nn3J_2D.addDenseLayer(64)
-nn3J_2D.addDenseLayer(64)
-nn3J_2D.addDenseLayer(64)
-nn3J_2D.fitAdam(0.001)
+computeJacobians(bestModel)
 
-nn5J_3D = FKNNFactory().create5J_3D_NN()
-nn5J_3D.addDenseLayer(64)
-nn5J_3D.addDenseLayer(64)
-nn5J_3D.addDenseLayer(64)
-nn5J_3D.fitAdam(0.001)"""
+modelsPerformances.clear()
 
-# Calcolare la posizione finale per theta
-theta = tf.constant([0.5, 1.0], dtype=tf.float32)  # Angoli di esempio
+#3J-2D
+for i in range(3):
+    nn3J_2D = FKNNFactory().create3J_2D_NN()
+    nn3J_2DModel = nn3J_2D["model"]
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.setEarlyStopping(10)
+    nn3J_2DModel.setEpochsNumber(1)
+    nn3J_2DModel.setBatchSize(32)
+    nn3J_2DModel.finalizeAdamModel(0.001)
+    modelsList.append(nn3J_2DModel)
+    nn3J_2DModel.getModel().summary()
 
-# Jacobiano computato tramite il modello
-jacobian_computed = FK_Jacobian(bestModel, theta)
+modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList, nn3J_2D["training-set-input"],
+                                                                        nn3J_2D["training-set-output"], nn3J_2D["test-set-input"],
+                                                                            nn3J_2D["test-set-output"])
+modelsList.clear()
 
-# Jacobiano analitico
-theta_numpy = theta.numpy()  # Converti theta in formato numpy per il calcolo analitico
-jacobian_analytical = Jacobian_analytical(theta_numpy)
+modelsPerformances.append(modelPerformances)
+modelsPerformances.sort(key = lambda model : model.getFinalTestSetMSE(), reverse = False)
 
-# Confronta i Jacobiani
-print("Jacobiano computato:\n", jacobian_computed.numpy())
-print("Jacobiano analitico:\n", jacobian_analytical)
-print("Differenza tra i Jacobiani:", np.abs(jacobian_computed.numpy() - jacobian_analytical))
+bestModel = modelsPerformances[0].getModel()
+print("Model performances sorted by best to worst are the following:")
+for modelPerformances in modelsPerformances:
+    printModelDataAndPerformances(modelPerformances)
+
+modelsPerformances.clear()
+
+#5G-3D
+for i in range(3):
+    nn5J_3D = FKNNFactory().create5J_3D_NN()
+    nn5J_3DModel = nn5J_3D["model"]
+    nn5J_3DModel.addDenseLayer(64)
+    nn5J_3DModel.addDenseLayer(64)
+    nn5J_3DModel.addDenseLayer(64)
+    nn5J_3DModel.setEarlyStopping(10)
+    nn5J_3DModel.setEpochsNumber(1)
+    nn5J_3DModel.setBatchSize(32)
+    nn5J_3DModel.finalizeAdamModel(0.001)
+    modelsList.append(nn5J_3DModel)
+    nn5J_3DModel.getModel().summary()
+
+modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList, nn5J_3D["training-set-input"],
+                                                                        nn5J_3D["training-set-output"], nn5J_3D["test-set-input"],
+                                                                            nn5J_3D["test-set-output"])
+modelsList.clear()
+
+modelsPerformances.append(modelPerformances)
+modelsPerformances.sort(key = lambda model : model.getFinalTestSetMSE(), reverse = False)
+
+bestModel = modelsPerformances[0].getModel()
+print("Model performances sorted by best to worst are the following:")
+for modelPerformances in modelsPerformances:
+    printModelDataAndPerformances(modelPerformances)
+
+modelsPerformances.clear()

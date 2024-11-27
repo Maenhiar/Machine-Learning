@@ -4,6 +4,14 @@ from typing import List
 import pandas as pd
 
 class CSVParser_2J_2D():
+    """
+    This class parses the 2J-2D CSV file passed as input and provides the associated
+    input set and output set.
+
+    Methods:
+        getInput(): Returns the training set inputs.
+        getOutput(): Returns the training set outputs.
+    """
     __input0ColumnName = "j0"
     __input1ColumnName = " j1"
     __output0ColumnName = " ee_x"

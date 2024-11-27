@@ -2,8 +2,18 @@ from PerformaceEvaluation.KFoldCrossValidation import KFoldCrossValidation
 from NeuralNetwork.NeuralNetwork import NeuralNetwork
 
 class NN_2J_2D(NeuralNetwork):
-
-    def __init__(self, trainingSetInput, trainingSetOutput, testSetInput, testSetOutput):
+    """
+    This class provides the common features to instantiate a Keras
+    feedforward neural network model for a 2J-2D forward kinematics problem, ensuring 
+    no errors in initialization or components addition. It provides methods that 
+    allow for easily adding and retrieving the neural network's components, such as 
+    layers, neurons, dropout, epochs, batch size, dropout, L1 or L2 regularization and early stopping settings."
+    This class also ensures that hidden layers activation function is always ReLU and 
+    output layer activation function is always linear because this is the 
+    most common efficient choice in regression problems tackled with a feedforward neural networ.
+    The chosen loss function is Mean Squared Error and the optimizer is Adam with a configurable learning rate.
+    """
+    def __init__(self):
         self._setInputNeuronsNumber(2)
         self._setOutputNeuronsNumber(2)
-        super().__init__(trainingSetInput, trainingSetOutput, testSetInput, testSetOutput)
+        super().__init__()

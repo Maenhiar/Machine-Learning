@@ -4,6 +4,14 @@ from typing import List
 import numpy as np
 
 class CSVParser_5J_3D(CSVParser_3J_2D):
+    """
+    This class parses the 5J-3D CSV file passed as input and provides the associated
+    input set and output set.
+
+    Methods:
+        getInput(): Returns the training set inputs.
+        getOutput(): Returns the training set outputs.
+    """
     __input3ColumnName = " j3"
     __input4ColumnName = " j4"
     __output2ColumnName = " ee_z"

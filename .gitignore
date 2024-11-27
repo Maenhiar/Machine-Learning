@@ -7,3 +7,5 @@
 /Task1-DeepLearning/HW1/Application/Jacobian/__pycache__
 /Task1-DeepLearning/HW1/Application/CSVParser/__pycache__
 /Task1-DeepLearning/HW1/Application/PerformaceEvaluation/__pycache__
+/Task1-DeepLearning/HW1/Application/Jacobian/__pycache__
+*.pyc
