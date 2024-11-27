@@ -120,8 +120,7 @@ class NeuralNetwork(ABC):
         
         self.__model.compile(
             optimizer= Adam(learning_rate = learning_rate),
-            loss = self.__nnLoss,
-            metrics = [self.__nnLoss])
+            loss = self.__nnLoss)
         
         return self
 

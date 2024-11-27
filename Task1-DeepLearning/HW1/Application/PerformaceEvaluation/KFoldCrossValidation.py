@@ -12,14 +12,13 @@ class KFoldCrossValidation():
         mseScores = []
         testSetMSEScores = []
         modelsHistory = []
-        modelsTrainingTime = []
-                             
+                                     
         trainingSetInput = modelsList[0].getTraingSetInput()
         trainsetOuput = modelsList[0].getTraingSetOutput()
         testSetInput = modelsList[0].getTestSetInput()
         testSetOutput = modelsList[0].getTestSetOutput()
 
-        kFoldCrossValidation = KFold(n_splits = 3)
+        kFoldCrossValidation = KFold(n_splits = 3, shuffle = True)
 
         weights = modelsList[0].getModel().get_weights()
 
@@ -42,9 +41,6 @@ class KFoldCrossValidation():
                 validation_data=(validationFoldInput, validationFoldOutput)
             )
 
-            endTime = time.time()
-            modelsTrainingTime.append(endTime - startTime)
-
             modelsHistory.append(history.history)
 
             mse = modelsList[i].getModel().evaluate(validationFoldInput, validationFoldOutput)
@@ -54,29 +50,31 @@ class KFoldCrossValidation():
             testSetMSEScores.append(testSetMSE)
 
             i = i + 1
+        
+        endTime = time.time()
 
         finalMSE = np.mean(mseScores)
-        finalTRrainingSetMSE = np.mean(testSetMSEScores)
+        finalTestingSetMSE = np.mean(testSetMSEScores)
 
         bestPerformanceModelIndex = testSetMSEScores.index(min(testSetMSEScores))
 
-        bestModel = self.BestModelPerformances(finalMSE, finalTRrainingSetMSE, 
+        bestModel = self.BestModelPerformances(finalMSE, finalTestingSetMSE, 
                                                 modelsHistory[bestPerformanceModelIndex], 
-                                                    modelsTrainingTime[bestPerformanceModelIndex],
+                                                    endTime - startTime,
                                                         modelsList[bestPerformanceModelIndex].getModel())
         
         return bestModel     
 
     class BestModelPerformances():
         __finalMSE = None
-        __finalTRrainingSetMSE = None
+        __finalTestSetMSE = None
         __modelHistory = None
         __trainingTime = 0
         __model = None
 
-        def __init__(self, finalMSE, finalTrainingSetMSE, modelHistory, trainingTime, model):
+        def __init__(self, finalMSE, finalTestSetMSE, modelHistory, trainingTime, model):
             self.__finalMSE = finalMSE
-            self.__finalTRrainingSetMSE = finalTrainingSetMSE
+            self.__finalTestSetMSE = finalTestSetMSE
             self.__modelHistory = modelHistory
             self.__trainingTime = trainingTime
             self.__model = model
@@ -84,8 +82,8 @@ class KFoldCrossValidation():
         def getFinalMSE(self):
             return self.__finalMSE
         
-        def getFinalTrainingSetMSE(self):
-            return self.__finalTRrainingSetMSE
+        def getFinalTestSetMSE(self):
+            return self.__finalTestSetMSE
         
         def getModelHistory(self):
             return self.__modelHistory

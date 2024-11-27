@@ -5,13 +5,6 @@ import tensorflow as tf
 L1 = 0.1
 L2 = 0.1
 
-# Funzione di Forward Kinematics (analitica)
-def FK_analytical(theta):
-    theta1, theta2 = theta
-    x = L1 * np.cos(theta1) + L2 * np.cos(theta1 + theta2)
-    y = L1 * np.sin(theta1) + L2 * np.sin(theta1 + theta2)
-    return np.array([x, y])
-
 # Jacobiano analitico
 def Jacobian_analytical(theta):
     theta1, theta2 = theta
