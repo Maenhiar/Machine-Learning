@@ -14,6 +14,6 @@ class NN_2J_2D(NeuralNetwork):
     The chosen loss function is Mean Squared Error and the optimizer is Adam with a configurable learning rate.
     """
     def __init__(self):
-        self._setInputNeuronsNumber(2)
-        self._setOutputNeuronsNumber(2)
+        self._setInputSize(2)
+        self._setOutputSize(2)
         super().__init__()

@@ -70,10 +70,9 @@ class KFoldCrossValidation():
 
         bestPerformanceModelIndex = testSetMSEScores.index(min(testSetMSEScores))
 
-        bestModel = self.BestModelPerformances(finalMSE, finalTestingSetMSE, 
-                                                modelsHistory[bestPerformanceModelIndex], 
-                                                    endTime - startTime,
-                                                        modelsList[bestPerformanceModelIndex].getModel())
+        bestModel = self.BestModelPerformances(finalMSE, finalTestingSetMSE, modelsHistory[bestPerformanceModelIndex], 
+                                                    endTime - startTime, modelsList[bestPerformanceModelIndex].getModel(),
+                                                        modelsList[bestPerformanceModelIndex].getEarlyStopping())
         
         return bestModel     
 
@@ -86,13 +85,15 @@ class KFoldCrossValidation():
         __modelHistory = None
         __trainingTime = 0
         __model = None
+        __earlyStopping = None
 
-        def __init__(self, finalMSE, finalTestSetMSE, modelHistory, trainingTime, model):
+        def __init__(self, finalMSE, finalTestSetMSE, modelHistory, trainingTime, model, earlyStopping):
             self.__finalMSE = finalMSE
             self.__finalTestSetMSE = finalTestSetMSE
             self.__modelHistory = modelHistory
             self.__trainingTime = trainingTime
             self.__model = model
+            self.__earlyStopping = earlyStopping
         
         def getFinalMSE(self):
             return self.__finalMSE
@@ -108,4 +109,7 @@ class KFoldCrossValidation():
         
         def getModel(self):
             return self.__model
+        
+        def getEarlyStopping(self):
+            return self.__earlyStopping
 

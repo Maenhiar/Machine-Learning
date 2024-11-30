@@ -14,6 +14,6 @@ class NN_5J_3D(NeuralNetwork):
     The chosen loss function is Mean Squared Error and the optimizer is Adam with a configurable learning rate.
     """
     def __init__(self):
-        self._setInputNeuronsNumber(5)
-        self._setOutputNeuronsNumber(3)
+        self._setInputSize(5)
+        self._setOutputSize(3)
         super().__init__()
