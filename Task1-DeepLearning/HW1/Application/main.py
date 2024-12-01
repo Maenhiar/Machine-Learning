@@ -52,7 +52,7 @@ def printModelDataAndPerformances(model):
 modelsPerformances = []
 
 modelsList = []
-for i in range(3):
+"""for i in range(3):
     nn2J_2D = FKNNFactory().create2J_2D_NN()
     nn2J_2DModel = nn2J_2D["model"]
     nn2J_2DModel.addDenseLayer(64)
@@ -61,6 +61,42 @@ for i in range(3):
     nn2J_2DModel.setEpochsNumber(100)
     nn2J_2DModel.setBatchSize(32)
     nn2J_2DModel.finalizeAdamModel(0.001)
+    modelsList.append(nn2J_2DModel)
+    nn2J_2DModel.getModel().summary()
+
+modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList, nn2J_2D["training-set-input"],
+                                                                        nn2J_2D["training-set-output"], nn2J_2D["test-set-input"],
+                                                                            nn2J_2D["test-set-output"])
+modelsList.clear()
+modelsPerformances.append(modelPerformances)
+
+for i in range(3):
+    nn2J_2D = FKNNFactory().create2J_2D_NN()
+    nn2J_2DModel = nn2J_2D["model"]
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.setEpochsNumber(100)
+    nn2J_2DModel.setBatchSize(32)
+    nn2J_2DModel.finalizeAdamModel(0.0001)
+    modelsList.append(nn2J_2DModel)
+    nn2J_2DModel.getModel().summary()
+
+modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList, nn2J_2D["training-set-input"],
+                                                                        nn2J_2D["training-set-output"], nn2J_2D["test-set-input"],
+                                                                            nn2J_2D["test-set-output"])
+modelsList.clear()
+modelsPerformances.append(modelPerformances)
+
+for i in range(3):
+    nn2J_2D = FKNNFactory().create2J_2D_NN()
+    nn2J_2DModel = nn2J_2D["model"]
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.setEpochsNumber(100)
+    nn2J_2DModel.setBatchSize(32)
+    nn2J_2DModel.finalizeAdamModel(0.01)
     modelsList.append(nn2J_2DModel)
     nn2J_2DModel.getModel().summary()
 
@@ -148,6 +184,7 @@ modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsLis
                                                                             nn2J_2D["test-set-output"])
 modelsList.clear()
 modelsPerformances.append(modelPerformances)
+modelsPerformances.sort(key = lambda model : model.getFinalTestSetMSE(), reverse = False)
 
 print("Model performances sorted by best to worst are the following:")
 for modelPerformances in modelsPerformances:
@@ -155,7 +192,7 @@ for modelPerformances in modelsPerformances:
     
 bestModel = modelsPerformances[0].getModel()
 modelsPerformances.clear()
-computeJacobians(bestModel)
+computeJacobians(bestModel)"""
 
 #3J-2D
 for i in range(3):
@@ -167,6 +204,42 @@ for i in range(3):
     nn3J_2DModel.setEpochsNumber(100)
     nn3J_2DModel.setBatchSize(32)
     nn3J_2DModel.finalizeAdamModel(0.001)
+    modelsList.append(nn3J_2DModel)
+    nn3J_2DModel.getModel().summary()
+
+modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList, nn3J_2D["training-set-input"],
+                                                                        nn3J_2D["training-set-output"], nn3J_2D["test-set-input"],
+                                                                            nn3J_2D["test-set-output"])
+modelsList.clear()
+modelsPerformances.append(modelPerformances)
+
+for i in range(3):
+    nn3J_2D = FKNNFactory().create3J_2D_NN()
+    nn3J_2DModel = nn3J_2D["model"]
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.setEpochsNumber(100)
+    nn3J_2DModel.setBatchSize(32)
+    nn3J_2DModel.finalizeAdamModel(0.0001)
+    modelsList.append(nn3J_2DModel)
+    nn3J_2DModel.getModel().summary()
+
+modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList, nn3J_2D["training-set-input"],
+                                                                        nn3J_2D["training-set-output"], nn3J_2D["test-set-input"],
+                                                                            nn3J_2D["test-set-output"])
+modelsList.clear()
+modelsPerformances.append(modelPerformances)
+
+for i in range(3):
+    nn3J_2D = FKNNFactory().create3J_2D_NN()
+    nn3J_2DModel = nn3J_2D["model"]
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.setEpochsNumber(100)
+    nn3J_2DModel.setBatchSize(32)
+    nn3J_2DModel.finalizeAdamModel(0.01)
     modelsList.append(nn3J_2DModel)
     nn3J_2DModel.getModel().summary()
 
@@ -255,6 +328,27 @@ modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsLis
 
 modelsList.clear()
 modelsPerformances.append(modelPerformances)
+
+for i in range(3):
+    nn3J_2D = FKNNFactory().create3J_2D_NN()
+    nn3J_2DModel = nn3J_2D["model"]
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.addDenseLayerWithL2Regularization(64, 0.001)
+    nn3J_2DModel.setEarlyStopping(10)
+    nn3J_2DModel.setEpochsNumber(100)
+    nn3J_2DModel.setBatchSize(32)
+    nn3J_2DModel.finalizeAdamModel(0.001)
+    modelsList.append(nn3J_2DModel)
+    nn3J_2DModel.getModel().summary()
+
+modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList, nn3J_2D["training-set-input"],
+                                                                        nn3J_2D["training-set-output"], nn3J_2D["test-set-input"],
+                                                                            nn3J_2D["test-set-output"])
+
+modelsList.clear()
+modelsPerformances.append(modelPerformances)
+
 modelsPerformances.sort(key = lambda model : model.getFinalTestSetMSE(), reverse = False)
 
 print("Model performances sorted by best to worst are the following:")

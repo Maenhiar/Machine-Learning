@@ -29,7 +29,6 @@ class KFoldCrossValidation():
         mseScores = []
         testSetMSEScores = []
         modelsHistory = []
-        weights = modelsList[0].getModel().get_weights()
         kFoldCrossValidation = KFold(n_splits = 3, shuffle = True)
         
         i = 0
@@ -40,10 +39,6 @@ class KFoldCrossValidation():
             trainingFoldOutput = trainsetOuput[train_index]
             validationFoldOutput = trainsetOuput[val_index]
 
-            """Necessary if we want that each model is initialized 
-                with the same weights without incurring in any error."""
-            modelsList[i].getModel().set_weights(weights)  
-            
             history = modelsList[i].getModel().fit(
                 trainingFoldInput,
                 trainingFoldOutput,
