@@ -22,7 +22,7 @@ class FKNNFactory():
     __testSetOutputDictionaryKey = "test-set-output"
     __modelDictionaryKey = "model"
 
-    def create2J_2D_NN(self):
+    def create2J_2D_NN(self, useStaticSeed: bool):
         __csvTrainingSetFilePath = os.path.join(self.__csvTrainingSetFilePath, 'r2', 'r2_21_100k.csv')
         csvParser = CSVParser_2J_2D(__csvTrainingSetFilePath)
         trainingSetInput = csvParser.getInput()
@@ -38,12 +38,12 @@ class FKNNFactory():
             self.__trainingSetOutputDictionaryKey: trainingSetOutput,
             self.__testSetInputDictionaryKey: testSetInput,
             self.__testSetOutputDictionaryKey: testSetOutput,
-            self.__modelDictionaryKey: NN_2J_2D()
+            self.__modelDictionaryKey: NN_2J_2D(useStaticSeed)
         }
 
         return modelData
 
-    def create3J_2D_NN(self):
+    def create3J_2D_NN(self, useStaticSeed: bool):
         __csvTrainingSetFilePath = os.path.join(self.__csvTrainingSetFilePath, 'r3', 'r3_24_100k.csv')
         csvParser = CSVParser_3J_2D(__csvTrainingSetFilePath)
         trainingSetInput = csvParser.getInput()
@@ -59,12 +59,12 @@ class FKNNFactory():
             self.__trainingSetOutputDictionaryKey: trainingSetOutput,
             self.__testSetInputDictionaryKey: testSetInput,
             self.__testSetOutputDictionaryKey: testSetOutput,
-            self.__modelDictionaryKey: NN_3J_2D()
+            self.__modelDictionaryKey: NN_3J_2D(useStaticSeed)
         }
 
         return modelData
 
-    def create5J_3D_NN(self):
+    def create5J_3D_NN(self, useStaticSeed: bool):
         __csvTrainingSetFilePath = os.path.join(self.__csvTrainingSetFilePath, 'r5', 'r5_25_100k.csv')
         csvParser = CSVParser_5J_3D(__csvTrainingSetFilePath)
         trainingSetInput = csvParser.getInput()
@@ -80,7 +80,7 @@ class FKNNFactory():
             self.__trainingSetOutputDictionaryKey: trainingSetOutput,
             self.__testSetInputDictionaryKey: testSetInput,
             self.__testSetOutputDictionaryKey: testSetOutput,
-            self.__modelDictionaryKey: NN_5J_3D()
+            self.__modelDictionaryKey: NN_5J_3D(useStaticSeed)
         }
 
         return modelData

@@ -1,6 +1,10 @@
 from abc import ABC
+import tensorflow as tf
+import numpy as np
+import random
+import os
+import keras
 from tensorflow.keras.callbacks import EarlyStopping
-from tensorflow.keras.models import Model
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.optimizers import Adam
@@ -29,9 +33,45 @@ class NeuralNetwork(ABC):
     __activationFunctionsButLast = "relu"
     __nnLoss = "mean_squared_error"
     
-    def __init__(self):
+    def __init__(self, useStaticSeed: bool):
         if type(self) is NeuralNetwork:
             raise NotImplementedError("Cannot instance an abstract class.")
+
+        if useStaticSeed :
+
+            # Setting the seed
+            seed_value = 8
+
+            # Set the seed in Python and in other libraries
+            random.seed(seed_value)
+            np.random.seed(seed_value)
+
+            # Set the seed in TensorFlow
+            tf.random.set_seed(seed_value)
+
+            # Set the seed using keras.utils.set_random_seed. This will set:
+            # 1) `numpy` seed
+            # 2) backend random seed
+            # 3) `python` random seed
+            keras.utils.set_random_seed(seed_value)
+
+            # If using TensorFlow, this will make GPU ops as deterministic as possible,
+            # but it will affect the overall performance, so be mindful of that.
+            tf.config.experimental.enable_op_determinism()
+
+            # Configure the TensorFlow session for deterministic behavior
+            os.environ['PYTHONHASHSEED'] = str(seed_value)
+
+            # Set the configuration for TensorFlow
+            physical_devices = tf.config.list_physical_devices('GPU')
+            if len(physical_devices) > 0:
+                tf.config.experimental.set_memory_growth(physical_devices[0], True)
+                tf.config.set_logical_device_configuration(physical_devices[0], 
+                    [tf.config.LogicalDeviceConfiguration(memory_limit=4096)])
+
+            # Set options for deterministic operations in TensorFlow
+            tf.config.threading.set_intra_op_parallelism_threads(1)
+            tf.config.threading.set_inter_op_parallelism_threads(1)
         
         self.__model = Sequential()
         self.__model.add(Dense(units = self.__inputSize, input_dim = self.__inputSize, activation = self.__activationFunctionsButLast))

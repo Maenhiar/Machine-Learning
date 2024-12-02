@@ -13,7 +13,7 @@ class NN_2J_2D(NeuralNetwork):
     most common efficient choice in regression problems tackled with a feedforward neural networ.
     The chosen loss function is Mean Squared Error and the optimizer is Adam with a configurable learning rate.
     """
-    def __init__(self):
+    def __init__(self, useStaticSeed: bool):
         self._setInputSize(2)
         self._setOutputSize(2)
-        super().__init__()
+        super().__init__(useStaticSeed)
