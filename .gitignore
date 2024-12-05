@@ -12,3 +12,10 @@
 *.pyc
 Task1-DeepLearning/HW1/Application/PerformaceEvaluation/__pycache__/KFoldCrossValidation.cpython-311.pyc
 Task1-DeepLearning/HW1/Application/NeuralNetwork/__pycache__/NeuralNetwork.cpython-311.pyc
+Task1-DeepLearning/HW1/Application/Jacobian/__pycache__/JacobiansComparator.cpython-311.pyc
+Task1-DeepLearning/HW1/Application/NeuralNetwork/__pycache__/FKNNFactory.cpython-311.pyc
+Task1-DeepLearning/HW1/Application/NeuralNetwork/__pycache__/NeuralNetwork.cpython-311.pyc
+Task1-DeepLearning/HW1/Application/NeuralNetwork/__pycache__/NN_2J_2D.cpython-311.pyc
+Task1-DeepLearning/HW1/Application/NeuralNetwork/__pycache__/NN_3J_2D.cpython-311.pyc
+Task1-DeepLearning/HW1/Application/NeuralNetwork/__pycache__/NN_5J_3D.cpython-311.pyc
+Task1-DeepLearning/HW1/Application/PerformaceEvaluation/__pycache__/KFoldCrossValidation.cpython-311.pyc

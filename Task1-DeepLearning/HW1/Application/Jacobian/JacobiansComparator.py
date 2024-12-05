@@ -1,5 +1,6 @@
 import numpy as np
 import tensorflow as tf
+from NeuralNetwork.NeuralNetwork import NeuralNetwork
 
 """
 This class provides the necessary methods to compute both the analytical Jacobian
@@ -24,6 +25,11 @@ def FK(model, theta):
 
 @tf.function
 def FK_Jacobian(model, x):
+    """ Necessary due to impossibility of correctly creating a clone 
+        of a keras model without incurring in any kind of error or problem."""
+    if isinstance(model, NeuralNetwork):
+        model = model._getModel()
+        
     with tf.GradientTape(persistent=True) as tape:
         tape.watch(x)
         y = FK(model, x)

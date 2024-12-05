@@ -6,15 +6,15 @@ class LossPlotter:
     """
 
     @staticmethod
-    def plotLoss(lossHistory):
+    def plotLoss(modelHistory):
         """
         This method plots the training set loss and validation set loss chart
 
         Args:
             lossHistory: the history of the model.
         """
-        plt.plot(lossHistory['loss'], label='Loss (train)')
-        plt.plot(lossHistory['val_loss'], label='Loss (validation)')
+        plt.plot(modelHistory.history['loss'], label='Loss (train)')
+        plt.plot(modelHistory.history['val_loss'], label='Loss (validation)')
         plt.title('Training and Validation Loss')
         plt.xlabel('Epochs')
         plt.ylabel('Loss')

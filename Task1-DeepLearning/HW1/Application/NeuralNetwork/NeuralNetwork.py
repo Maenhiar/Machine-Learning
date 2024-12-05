@@ -10,6 +10,7 @@ from tensorflow.keras.layers import Dense
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.layers import Dropout
 from tensorflow.keras import regularizers
+import inspect
 
 class NeuralNetwork(ABC):
     """
@@ -85,9 +86,6 @@ class NeuralNetwork(ABC):
     def getEpochsNumber(self):
         return self.__epochsNumber
     
-    def getModel(self):
-        return self.__model
-    
     def addDenseLayer(self, neuronsNumber: int):
         if self.__isNeuronsNumberValid(neuronsNumber) == False :
             raise ValueError("Neurons number cannot be a negative value")
@@ -122,7 +120,7 @@ class NeuralNetwork(ABC):
         
         self.__batchSize = batchSize
 
-    def setDropout(self, dropoutRate: float):
+    def addDropout(self, dropoutRate: float):
         if dropoutRate < 0 and dropoutRate > 1 :
             raise ValueError("Dropout value must be between 0 and 1")
 
@@ -143,9 +141,10 @@ class NeuralNetwork(ABC):
 
     def finalizeAdamModel(self, learning_rate):
         self.__model.add(Dense(units = self.__outputSize, activation = "linear"))
-        
+        from tensorflow.keras.optimizers import SGD
+
         self.__model.compile(
-            optimizer= Adam(learning_rate = learning_rate),
+            optimizer= SGD(learning_rate=0.01, momentum=0.9),
             loss = self.__nnLoss)
         
         return self        
@@ -161,3 +160,9 @@ class NeuralNetwork(ABC):
     
     def __isLRegularizationPenaltyValueValid(self, neuronsNumber: float):
         return neuronsNumber >= 0
+    
+    """ WARNING: This method should not be called directly by the users of this library.
+        It is necessary due to impossibility of correctly creating a clone of a keras model 
+        without incurring in any kind of error or problem."""
+    def _getModel(self):
+        return self.__model
