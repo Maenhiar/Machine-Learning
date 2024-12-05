@@ -10,7 +10,6 @@ from tensorflow.keras.layers import Dense
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.layers import Dropout
 from tensorflow.keras import regularizers
-import inspect
 
 class NeuralNetwork(ABC):
     """
@@ -68,7 +67,7 @@ class NeuralNetwork(ABC):
             if len(physical_devices) > 0:
                 tf.config.experimental.set_memory_growth(physical_devices[0], True)
                 tf.config.set_logical_device_configuration(physical_devices[0], 
-                    [tf.config.LogicalDeviceConfiguration(memory_limit=4096)])
+                    [tf.config.LogicalDeviceConfiguration(memory_limit = 4096)])
 
             # Set options for deterministic operations in TensorFlow
             tf.config.threading.set_intra_op_parallelism_threads(1)
@@ -141,10 +140,9 @@ class NeuralNetwork(ABC):
 
     def finalizeAdamModel(self, learning_rate):
         self.__model.add(Dense(units = self.__outputSize, activation = "linear"))
-        from tensorflow.keras.optimizers import SGD
 
         self.__model.compile(
-            optimizer= SGD(learning_rate=0.01, momentum=0.9),
+            optimizer= Adam(learning_rate = learning_rate),
             loss = self.__nnLoss)
         
         return self        

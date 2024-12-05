@@ -7,22 +7,22 @@ from PerformaceEvaluation.KFoldCrossValidation import KFoldCrossValidation
 from Jacobian.JacobiansComparator import FK_Jacobian, computeAnalyticalJacobian
 from NeuralNetwork.AverageModelProperties import AverageModelProperties
 
-def computeJacobians(bestModel):
+def printJacobians(bestModel):
     theta = tf.constant([0.5, 1.0], dtype=tf.float32)
     computedJacobian = FK_Jacobian(bestModel, theta)
     numpyTheta = theta.numpy()
     jacobian_analytical = computeAnalyticalJacobian(numpyTheta)
     
-    print("Jacobiano analitico:\n", jacobian_analytical)
-    print("Jacobiano computato:\n", computedJacobian.numpy())
-    print("Differenza tra i Jacobiani:", np.abs(computedJacobian.numpy() - jacobian_analytical))
+    print("Analytical Jacobian:\n", jacobian_analytical)
+    print("Model computed Jacobian:\n", computedJacobian.numpy())
+    print("Difference:", np.abs(computedJacobian.numpy() - jacobian_analytical))
 
 def printModelDataAndPerformances(model):
     model.showModelSummary()
 
-    print("Final MSE = ", model.getFinalMSE())
-    print("Final test ste MSE = ", model.getFinalTestSetMSE())
-    print(f'Training time: {model.getTrainingTime():.4f} secondi')
+    print("Final average MSE = ", model.getFinalMSE())
+    print("Final average test set MSE = ", model.getFinalTestSetMSE())
+    print(f'Training time: {model.getTrainingTime():.4f} seconds')
     
     print("\Model layers:")
     for layer in model.getModelLayers():
@@ -49,29 +49,259 @@ def printModelDataAndPerformances(model):
     
     print("Early stopping: ", model.getEarlyStopping())
 
-#2J-2D
 modelsPerformances = []
 modelsList = []
-"""for i in range(3):
+retrieveModelString = "modelWrapper"
+retrieveTrainingSetInputString = "training-set-input"
+retrieveTrainingSetOutputString = "training-set-output"
+retrieveTestSetInputString = "test-set-input"
+retrieveTestSeOutputString = "test-set-output"
+retrieveAvgMSEString = "avgMSE"
+retrieveAvgTestSetMSEString = "avgTestSetMSE"
+retrieveTrainingTimeString = "trainingTime"
+retrieveHistoryString = "histories"
+
+#2J-2D
+for i in range(3):
     nn2J_2D = FKNNFactory().create2J_2D_NN(True)
-    nn2J_2DModel = nn2J_2D["modelWrapper"]
+    nn2J_2DModel = nn2J_2D[retrieveModelString]
     nn2J_2DModel.addDenseLayer(64)
     nn2J_2DModel.addDenseLayer(64)
     nn2J_2DModel.addDenseLayer(64)
-    nn2J_2DModel.setEpochsNumber(1)
+    nn2J_2DModel.setEpochsNumber(100)
     nn2J_2DModel.setBatchSize(64)
     nn2J_2DModel.setEarlyStopping(20)
     nn2J_2DModel.finalizeAdamModel(0.001)
     modelsList.append(nn2J_2DModel)
 
-modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList, nn2J_2D["training-set-input"],
-                                                                        nn2J_2D["training-set-output"], nn2J_2D["test-set-input"],
-                                                                            nn2J_2D["test-set-output"])
+modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList, nn2J_2D[retrieveTrainingSetInputString],
+                                                                        nn2J_2D[retrieveTrainingSetOutputString], 
+                                                                            nn2J_2D[retrieveTestSetInputString],
+                                                                                nn2J_2D[retrieveTestSeOutputString])
 
 modelsList.clear()
 
-modelProperties = AverageModelProperties(nn2J_2DModel, modelPerformances["avgMSE"], modelPerformances["avgTestSetMSE"], 
-                                    modelPerformances["trainingTime"], modelPerformances["histories"])
+modelProperties = AverageModelProperties(nn2J_2DModel, modelPerformances[retrieveAvgMSEString], 
+                                            modelPerformances[retrieveAvgTestSetMSEString], 
+                                                modelPerformances[retrieveTrainingTimeString],
+                                                    modelPerformances[retrieveHistoryString])
+
+modelsPerformances.append(modelProperties)
+
+for i in range(3):
+    nn2J_2D = FKNNFactory().create2J_2D_NN(True)
+    nn2J_2DModel = nn2J_2D[retrieveModelString]
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.setEpochsNumber(100)
+    nn2J_2DModel.setBatchSize(64)
+    nn2J_2DModel.setEarlyStopping(20)
+    nn2J_2DModel.finalizeAdamModel(0.0001)
+    modelsList.append(nn2J_2DModel)
+
+modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList, nn2J_2D[retrieveTrainingSetInputString],
+                                                                        nn2J_2D[retrieveTrainingSetOutputString], 
+                                                                            nn2J_2D[retrieveTestSetInputString],
+                                                                                nn2J_2D[retrieveTestSeOutputString])
+
+modelsList.clear()
+
+modelProperties = AverageModelProperties(nn2J_2DModel, modelPerformances[retrieveAvgMSEString], 
+                                            modelPerformances[retrieveAvgTestSetMSEString], 
+                                                modelPerformances[retrieveTrainingTimeString],
+                                                    modelPerformances[retrieveHistoryString])
+
+modelsPerformances.append(modelProperties)
+
+for i in range(3):
+    nn2J_2D = FKNNFactory().create2J_2D_NN(True)
+    nn2J_2DModel = nn2J_2D[retrieveModelString]
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.setEpochsNumber(100)
+    nn2J_2DModel.setBatchSize(64)
+    nn2J_2DModel.setEarlyStopping(20)
+    nn2J_2DModel.finalizeAdamModel(0.01)
+    modelsList.append(nn2J_2DModel)
+
+modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList, nn2J_2D[retrieveTrainingSetInputString],
+                                                                        nn2J_2D[retrieveTrainingSetOutputString], 
+                                                                            nn2J_2D[retrieveTestSetInputString],
+                                                                                nn2J_2D[retrieveTestSeOutputString])
+
+modelsList.clear()
+
+modelProperties = AverageModelProperties(nn2J_2DModel, modelPerformances[retrieveAvgMSEString], 
+                                            modelPerformances[retrieveAvgTestSetMSEString], 
+                                                modelPerformances[retrieveTrainingTimeString],
+                                                    modelPerformances[retrieveHistoryString])
+
+modelsPerformances.append(modelProperties)
+
+for i in range(3):
+    nn2J_2D = FKNNFactory().create2J_2D_NN(True)
+    nn2J_2DModel = nn2J_2D[retrieveModelString]
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.setEpochsNumber(100)
+    nn2J_2DModel.setBatchSize(64)
+    nn2J_2DModel.setEarlyStopping(20)
+    nn2J_2DModel.finalizeAdamModel(0.001)
+    modelsList.append(nn2J_2DModel)
+
+modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList, nn2J_2D[retrieveTrainingSetInputString],
+                                                                        nn2J_2D[retrieveTrainingSetOutputString], 
+                                                                            nn2J_2D[retrieveTestSetInputString],
+                                                                                nn2J_2D[retrieveTestSeOutputString])
+
+modelsList.clear()
+
+modelProperties = AverageModelProperties(nn2J_2DModel, modelPerformances[retrieveAvgMSEString], 
+                                            modelPerformances[retrieveAvgTestSetMSEString], 
+                                                modelPerformances[retrieveTrainingTimeString],
+                                                    modelPerformances[retrieveHistoryString])
+
+modelsPerformances.append(modelProperties)
+
+for i in range(3):
+    nn2J_2D = FKNNFactory().create2J_2D_NN(True)
+    nn2J_2DModel = nn2J_2D[retrieveModelString]
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.setEpochsNumber(100)
+    nn2J_2DModel.setBatchSize(64)
+    nn2J_2DModel.setEarlyStopping(20)
+    nn2J_2DModel.finalizeAdamModel(0.0001)
+    modelsList.append(nn2J_2DModel)
+
+modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList, nn2J_2D[retrieveTrainingSetInputString],
+                                                                        nn2J_2D[retrieveTrainingSetOutputString], 
+                                                                            nn2J_2D[retrieveTestSetInputString],
+                                                                                nn2J_2D[retrieveTestSeOutputString])
+
+modelsList.clear()
+
+modelProperties = AverageModelProperties(nn2J_2DModel, modelPerformances[retrieveAvgMSEString], 
+                                            modelPerformances[retrieveAvgTestSetMSEString], 
+                                                modelPerformances[retrieveTrainingTimeString],
+                                                    modelPerformances[retrieveHistoryString])
+
+modelsPerformances.append(modelProperties)
+
+for i in range(3):
+    nn2J_2D = FKNNFactory().create2J_2D_NN(True)
+    nn2J_2DModel = nn2J_2D[retrieveModelString]
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.setEpochsNumber(100)
+    nn2J_2DModel.setBatchSize(64)
+    nn2J_2DModel.setEarlyStopping(20)
+    nn2J_2DModel.finalizeAdamModel(0.01)
+    modelsList.append(nn2J_2DModel)
+
+modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList, nn2J_2D[retrieveTrainingSetInputString],
+                                                                        nn2J_2D[retrieveTrainingSetOutputString], 
+                                                                            nn2J_2D[retrieveTestSetInputString],
+                                                                                nn2J_2D[retrieveTestSeOutputString])
+
+modelsList.clear()
+
+modelProperties = AverageModelProperties(nn2J_2DModel, modelPerformances[retrieveAvgMSEString], 
+                                            modelPerformances[retrieveAvgTestSetMSEString], 
+                                                modelPerformances[retrieveTrainingTimeString],
+                                                    modelPerformances[retrieveHistoryString])
+
+modelsPerformances.append(modelProperties)
+
+for i in range(3):
+    nn2J_2D = FKNNFactory().create2J_2D_NN(True)
+    nn2J_2DModel = nn2J_2D[retrieveModelString]
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.setEpochsNumber(100)
+    nn2J_2DModel.setBatchSize(64)
+    nn2J_2DModel.setEarlyStopping(20)
+    nn2J_2DModel.finalizeAdamModel(0.001)
+    modelsList.append(nn2J_2DModel)
+
+modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList, nn2J_2D[retrieveTrainingSetInputString],
+                                                                        nn2J_2D[retrieveTrainingSetOutputString], 
+                                                                            nn2J_2D[retrieveTestSetInputString],
+                                                                                nn2J_2D[retrieveTestSeOutputString])
+
+modelsList.clear()
+
+modelProperties = AverageModelProperties(nn2J_2DModel, modelPerformances[retrieveAvgMSEString], 
+                                            modelPerformances[retrieveAvgTestSetMSEString], 
+                                                modelPerformances[retrieveTrainingTimeString],
+                                                    modelPerformances[retrieveHistoryString])
+
+modelsPerformances.append(modelProperties)
+
+for i in range(3):
+    nn2J_2D = FKNNFactory().create2J_2D_NN(True)
+    nn2J_2DModel = nn2J_2D[retrieveModelString]
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.setEpochsNumber(100)
+    nn2J_2DModel.setBatchSize(64)
+    nn2J_2DModel.setEarlyStopping(20)
+    nn2J_2DModel.finalizeAdamModel(0.0001)
+    modelsList.append(nn2J_2DModel)
+
+modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList, nn2J_2D[retrieveTrainingSetInputString],
+                                                                        nn2J_2D[retrieveTrainingSetOutputString], 
+                                                                            nn2J_2D[retrieveTestSetInputString],
+                                                                                nn2J_2D[retrieveTestSeOutputString])
+
+modelsList.clear()
+
+modelProperties = AverageModelProperties(nn2J_2DModel, modelPerformances[retrieveAvgMSEString], 
+                                            modelPerformances[retrieveAvgTestSetMSEString], 
+                                                modelPerformances[retrieveTrainingTimeString],
+                                                    modelPerformances[retrieveHistoryString])
+
+modelsPerformances.append(modelProperties)
+
+for i in range(3):
+    nn2J_2D = FKNNFactory().create2J_2D_NN(True)
+    nn2J_2DModel = nn2J_2D[retrieveModelString]
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.addDenseLayer(64)
+    nn2J_2DModel.setEpochsNumber(100)
+    nn2J_2DModel.setBatchSize(64)
+    nn2J_2DModel.setEarlyStopping(20)
+    nn2J_2DModel.finalizeAdamModel(0.01)
+    modelsList.append(nn2J_2DModel)
+
+modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList, nn2J_2D[retrieveTrainingSetInputString],
+                                                                        nn2J_2D[retrieveTrainingSetOutputString], 
+                                                                            nn2J_2D[retrieveTestSetInputString],
+                                                                                nn2J_2D[retrieveTestSeOutputString])
+
+modelsList.clear()
+
+modelProperties = AverageModelProperties(nn2J_2DModel, modelPerformances[retrieveAvgMSEString], 
+                                            modelPerformances[retrieveAvgTestSetMSEString], 
+                                                modelPerformances[retrieveTrainingTimeString],
+                                                    modelPerformances[retrieveHistoryString])
 
 modelsPerformances.append(modelProperties)
 
@@ -85,14 +315,14 @@ bestModel = modelsPerformances[0]
 
 LossPlotter.plotLoss(bestModel.getmodelHistories()[0])
 
-computeJacobians(bestModel.getFKNNModel())
+printJacobians(bestModel.getFKNNModel())
 
-modelsPerformances.clear()"""
+modelsPerformances.clear()
 
 #3J-2D
 for i in range(3):
     nn3J_2D = FKNNFactory().create3J_2D_NN(True)
-    nn3J_2DModel = nn3J_2D["modelWrapper"]
+    nn3J_2DModel = nn3J_2D[retrieveModelString]
     nn3J_2DModel.addDenseLayer(64)
     nn3J_2DModel.addDenseLayer(64)
     nn3J_2DModel.addDenseLayer(64)
@@ -102,14 +332,234 @@ for i in range(3):
     nn3J_2DModel.setEarlyStopping(50)
     modelsList.append(nn3J_2DModel)
 
-modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList, nn3J_2D["training-set-input"],
-                                                                        nn3J_2D["training-set-output"], nn3J_2D["test-set-input"],
-                                                                            nn3J_2D["test-set-output"])
+modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList, nn3J_2D[retrieveTrainingSetInputString],
+                                                                        nn3J_2D[retrieveTrainingSetOutputString], 
+                                                                            nn3J_2D[retrieveTestSetInputString],
+                                                                                nn3J_2D[retrieveTestSeOutputString])
 
 modelsList.clear()
 
-modelProperties = AverageModelProperties(nn3J_2DModel, modelPerformances["avgMSE"], modelPerformances["avgTestSetMSE"], 
-                                    modelPerformances["trainingTime"], modelPerformances["histories"])
+modelProperties = AverageModelProperties(nn3J_2DModel, modelPerformances[retrieveAvgMSEString], 
+                                         modelPerformances[retrieveAvgTestSetMSEString], 
+                                            modelPerformances[retrieveTrainingTimeString],
+                                                modelPerformances[retrieveHistoryString])
+
+modelsPerformances.append(modelProperties)
+
+for i in range(3):
+    nn3J_2D = FKNNFactory().create3J_2D_NN(True)
+    nn3J_2DModel = nn3J_2D[retrieveModelString]
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.setEpochsNumber(100)
+    nn3J_2DModel.setBatchSize(64)
+    nn3J_2DModel.finalizeAdamModel(0.0001)
+    nn3J_2DModel.setEarlyStopping(50)
+    modelsList.append(nn3J_2DModel)
+
+modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList, nn3J_2D[retrieveTrainingSetInputString],
+                                                                        nn3J_2D[retrieveTrainingSetOutputString], 
+                                                                            nn3J_2D[retrieveTestSetInputString],
+                                                                                nn3J_2D[retrieveTestSeOutputString])
+
+modelsList.clear()
+
+modelProperties = AverageModelProperties(nn3J_2DModel, modelPerformances[retrieveAvgMSEString], 
+                                         modelPerformances[retrieveAvgTestSetMSEString], 
+                                            modelPerformances[retrieveTrainingTimeString],
+                                                modelPerformances[retrieveHistoryString])
+
+modelsPerformances.append(modelProperties)
+
+for i in range(3):
+    nn3J_2D = FKNNFactory().create3J_2D_NN(True)
+    nn3J_2DModel = nn3J_2D[retrieveModelString]
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.setEpochsNumber(100)
+    nn3J_2DModel.setBatchSize(64)
+    nn3J_2DModel.finalizeAdamModel(0.01)
+    nn3J_2DModel.setEarlyStopping(50)
+    modelsList.append(nn3J_2DModel)
+
+modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList, nn3J_2D[retrieveTrainingSetInputString],
+                                                                        nn3J_2D[retrieveTrainingSetOutputString], 
+                                                                            nn3J_2D[retrieveTestSetInputString],
+                                                                                nn3J_2D[retrieveTestSeOutputString])
+
+modelsList.clear()
+
+modelProperties = AverageModelProperties(nn3J_2DModel, modelPerformances[retrieveAvgMSEString], 
+                                         modelPerformances[retrieveAvgTestSetMSEString], 
+                                            modelPerformances[retrieveTrainingTimeString],
+                                                modelPerformances[retrieveHistoryString])
+
+modelsPerformances.append(modelProperties)
+
+for i in range(3):
+    nn3J_2D = FKNNFactory().create3J_2D_NN(True)
+    nn3J_2DModel = nn3J_2D[retrieveModelString]
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.setEpochsNumber(100)
+    nn3J_2DModel.setBatchSize(64)
+    nn3J_2DModel.finalizeAdamModel(0.001)
+    nn3J_2DModel.setEarlyStopping(50)
+    modelsList.append(nn3J_2DModel)
+
+modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList, nn3J_2D[retrieveTrainingSetInputString],
+                                                                        nn3J_2D[retrieveTrainingSetOutputString], 
+                                                                            nn3J_2D[retrieveTestSetInputString],
+                                                                                nn3J_2D[retrieveTestSeOutputString])
+
+modelsList.clear()
+
+modelProperties = AverageModelProperties(nn3J_2DModel, modelPerformances[retrieveAvgMSEString], 
+                                         modelPerformances[retrieveAvgTestSetMSEString], 
+                                            modelPerformances[retrieveTrainingTimeString],
+                                                modelPerformances[retrieveHistoryString])
+
+modelsPerformances.append(modelProperties)
+
+for i in range(3):
+    nn3J_2D = FKNNFactory().create3J_2D_NN(True)
+    nn3J_2DModel = nn3J_2D[retrieveModelString]
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.setEpochsNumber(100)
+    nn3J_2DModel.setBatchSize(64)
+    nn3J_2DModel.finalizeAdamModel(0.0001)
+    nn3J_2DModel.setEarlyStopping(50)
+    modelsList.append(nn3J_2DModel)
+
+modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList, nn3J_2D[retrieveTrainingSetInputString],
+                                                                        nn3J_2D[retrieveTrainingSetOutputString], 
+                                                                            nn3J_2D[retrieveTestSetInputString],
+                                                                                nn3J_2D[retrieveTestSeOutputString])
+
+modelsList.clear()
+
+modelProperties = AverageModelProperties(nn3J_2DModel, modelPerformances[retrieveAvgMSEString], 
+                                         modelPerformances[retrieveAvgTestSetMSEString], 
+                                            modelPerformances[retrieveTrainingTimeString],
+                                                modelPerformances[retrieveHistoryString])
+
+modelsPerformances.append(modelProperties)
+
+for i in range(3):
+    nn3J_2D = FKNNFactory().create3J_2D_NN(True)
+    nn3J_2DModel = nn3J_2D[retrieveModelString]
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.setEpochsNumber(100)
+    nn3J_2DModel.setBatchSize(64)
+    nn3J_2DModel.finalizeAdamModel(0.01)
+    nn3J_2DModel.setEarlyStopping(50)
+    modelsList.append(nn3J_2DModel)
+
+modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList, nn3J_2D[retrieveTrainingSetInputString],
+                                                                        nn3J_2D[retrieveTrainingSetOutputString], 
+                                                                            nn3J_2D[retrieveTestSetInputString],
+                                                                                nn3J_2D[retrieveTestSeOutputString])
+
+modelsList.clear()
+
+modelProperties = AverageModelProperties(nn3J_2DModel, modelPerformances[retrieveAvgMSEString], 
+                                         modelPerformances[retrieveAvgTestSetMSEString], 
+                                            modelPerformances[retrieveTrainingTimeString],
+                                                modelPerformances[retrieveHistoryString])
+
+modelsPerformances.append(modelProperties)
+
+for i in range(3):
+    nn3J_2D = FKNNFactory().create3J_2D_NN(True)
+    nn3J_2DModel = nn3J_2D[retrieveModelString]
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.setEpochsNumber(100)
+    nn3J_2DModel.setBatchSize(64)
+    nn3J_2DModel.finalizeAdamModel(0.001)
+    nn3J_2DModel.setEarlyStopping(50)
+    modelsList.append(nn3J_2DModel)
+
+modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList, nn3J_2D[retrieveTrainingSetInputString],
+                                                                        nn3J_2D[retrieveTrainingSetOutputString], 
+                                                                            nn3J_2D[retrieveTestSetInputString],
+                                                                                nn3J_2D[retrieveTestSeOutputString])
+
+modelsList.clear()
+
+modelProperties = AverageModelProperties(nn3J_2DModel, modelPerformances[retrieveAvgMSEString], 
+                                         modelPerformances[retrieveAvgTestSetMSEString], 
+                                            modelPerformances[retrieveTrainingTimeString],
+                                                modelPerformances[retrieveHistoryString])
+
+modelsPerformances.append(modelProperties)
+
+for i in range(3):
+    nn3J_2D = FKNNFactory().create3J_2D_NN(True)
+    nn3J_2DModel = nn3J_2D[retrieveModelString]
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.setEpochsNumber(100)
+    nn3J_2DModel.setBatchSize(64)
+    nn3J_2DModel.finalizeAdamModel(0.0001)
+    nn3J_2DModel.setEarlyStopping(50)
+    modelsList.append(nn3J_2DModel)
+
+modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList, nn3J_2D[retrieveTrainingSetInputString],
+                                                                        nn3J_2D[retrieveTrainingSetOutputString], 
+                                                                            nn3J_2D[retrieveTestSetInputString],
+                                                                                nn3J_2D[retrieveTestSeOutputString])
+
+modelsList.clear()
+
+modelProperties = AverageModelProperties(nn3J_2DModel, modelPerformances[retrieveAvgMSEString], 
+                                         modelPerformances[retrieveAvgTestSetMSEString], 
+                                            modelPerformances[retrieveTrainingTimeString],
+                                                modelPerformances[retrieveHistoryString])
+
+modelsPerformances.append(modelProperties)
+
+for i in range(3):
+    nn3J_2D = FKNNFactory().create3J_2D_NN(True)
+    nn3J_2DModel = nn3J_2D[retrieveModelString]
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.addDenseLayer(64)
+    nn3J_2DModel.setEpochsNumber(100)
+    nn3J_2DModel.setBatchSize(64)
+    nn3J_2DModel.finalizeAdamModel(0.01)
+    nn3J_2DModel.setEarlyStopping(50)
+    modelsList.append(nn3J_2DModel)
+
+modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList, nn3J_2D[retrieveTrainingSetInputString],
+                                                                        nn3J_2D[retrieveTrainingSetOutputString], 
+                                                                            nn3J_2D[retrieveTestSetInputString],
+                                                                                nn3J_2D[retrieveTestSeOutputString])
+
+modelsList.clear()
+
+modelProperties = AverageModelProperties(nn3J_2DModel, modelPerformances[retrieveAvgMSEString], 
+                                         modelPerformances[retrieveAvgTestSetMSEString], 
+                                            modelPerformances[retrieveTrainingTimeString],
+                                                modelPerformances[retrieveHistoryString])
 
 modelsPerformances.append(modelProperties)
 
@@ -126,7 +576,7 @@ modelsPerformances.clear()
 #5G-3D
 for i in range(3):
     nn5J_3D = FKNNFactory().create5J_3D_NN(True)
-    nn5J_3DModel = nn5J_3D["modelWrapper"]
+    nn5J_3DModel = nn5J_3D[retrieveModelString]
     nn5J_3DModel.addDenseLayer(64)
     nn5J_3DModel.addDenseLayer(64)
     nn5J_3DModel.addDenseLayer(64)
@@ -136,14 +586,234 @@ for i in range(3):
     nn5J_3DModel.finalizeAdamModel(0.001)
     modelsList.append(nn5J_3DModel)
 
-modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList, nn5J_3D["training-set-input"],
-                                                                        nn5J_3D["training-set-output"], nn5J_3D["test-set-input"],
-                                                                            nn5J_3D["test-set-output"])
-                                                                        
+modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList, nn5J_3D[retrieveTrainingSetInputString],
+                                                                        nn5J_3D[retrieveTrainingSetOutputString], 
+                                                                            nn5J_3D[retrieveTestSetInputString],
+                                                                                nn5J_3D[retrieveTestSeOutputString])
+
 modelsList.clear()
 
-modelProperties = AverageModelProperties(nn5J_3DModel, modelPerformances["avgMSE"], modelPerformances["avgTestSetMSE"], 
-                                    modelPerformances["trainingTime"], modelPerformances["histories"])
+modelProperties = AverageModelProperties(nn5J_3DModel, modelPerformances[retrieveAvgMSEString], 
+                                         modelPerformances[retrieveAvgTestSetMSEString], 
+                                            modelPerformances[retrieveTrainingTimeString],
+                                                modelPerformances[retrieveHistoryString])
+
+modelsPerformances.append(modelProperties)
+
+for i in range(3):
+    nn5J_3D = FKNNFactory().create5J_3D_NN(True)
+    nn5J_3DModel = nn5J_3D[retrieveModelString]
+    nn5J_3DModel.addDenseLayer(64)
+    nn5J_3DModel.addDenseLayer(64)
+    nn5J_3DModel.addDenseLayer(64)
+    nn5J_3DModel.setEpochsNumber(100)
+    nn5J_3DModel.setBatchSize(32)
+    nn5J_3DModel.setEarlyStopping(50)
+    nn5J_3DModel.finalizeAdamModel(0.0001)
+    modelsList.append(nn5J_3DModel)
+
+modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList, nn5J_3D[retrieveTrainingSetInputString],
+                                                                        nn5J_3D[retrieveTrainingSetOutputString], 
+                                                                            nn5J_3D[retrieveTestSetInputString],
+                                                                                nn5J_3D[retrieveTestSeOutputString])
+
+modelsList.clear()
+
+modelProperties = AverageModelProperties(nn5J_3DModel, modelPerformances[retrieveAvgMSEString], 
+                                         modelPerformances[retrieveAvgTestSetMSEString], 
+                                            modelPerformances[retrieveTrainingTimeString],
+                                                modelPerformances[retrieveHistoryString])
+
+modelsPerformances.append(modelProperties)
+
+for i in range(3):
+    nn5J_3D = FKNNFactory().create5J_3D_NN(True)
+    nn5J_3DModel = nn5J_3D[retrieveModelString]
+    nn5J_3DModel.addDenseLayer(64)
+    nn5J_3DModel.addDenseLayer(64)
+    nn5J_3DModel.addDenseLayer(64)
+    nn5J_3DModel.setEpochsNumber(100)
+    nn5J_3DModel.setBatchSize(32)
+    nn5J_3DModel.setEarlyStopping(50)
+    nn5J_3DModel.finalizeAdamModel(0.01)
+    modelsList.append(nn5J_3DModel)
+
+modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList, nn5J_3D[retrieveTrainingSetInputString],
+                                                                        nn5J_3D[retrieveTrainingSetOutputString], 
+                                                                            nn5J_3D[retrieveTestSetInputString],
+                                                                                nn5J_3D[retrieveTestSeOutputString])
+
+modelsList.clear()
+
+modelProperties = AverageModelProperties(nn5J_3DModel, modelPerformances[retrieveAvgMSEString], 
+                                         modelPerformances[retrieveAvgTestSetMSEString], 
+                                            modelPerformances[retrieveTrainingTimeString],
+                                                modelPerformances[retrieveHistoryString])
+
+modelsPerformances.append(modelProperties)
+
+for i in range(3):
+    nn5J_3D = FKNNFactory().create5J_3D_NN(True)
+    nn5J_3DModel = nn5J_3D[retrieveModelString]
+    nn5J_3DModel.addDenseLayer(64)
+    nn5J_3DModel.addDenseLayer(64)
+    nn5J_3DModel.addDenseLayer(64)
+    nn5J_3DModel.addDenseLayer(64)
+    nn5J_3DModel.setEpochsNumber(100)
+    nn5J_3DModel.setBatchSize(32)
+    nn5J_3DModel.setEarlyStopping(50)
+    nn5J_3DModel.finalizeAdamModel(0.001)
+    modelsList.append(nn5J_3DModel)
+
+modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList, nn5J_3D[retrieveTrainingSetInputString],
+                                                                        nn5J_3D[retrieveTrainingSetOutputString], 
+                                                                            nn5J_3D[retrieveTestSetInputString],
+                                                                                nn5J_3D[retrieveTestSeOutputString])
+
+modelsList.clear()
+
+modelProperties = AverageModelProperties(nn5J_3DModel, modelPerformances[retrieveAvgMSEString], 
+                                         modelPerformances[retrieveAvgTestSetMSEString], 
+                                            modelPerformances[retrieveTrainingTimeString],
+                                                modelPerformances[retrieveHistoryString])
+
+modelsPerformances.append(modelProperties)
+
+for i in range(3):
+    nn5J_3D = FKNNFactory().create5J_3D_NN(True)
+    nn5J_3DModel = nn5J_3D[retrieveModelString]
+    nn5J_3DModel.addDenseLayer(64)
+    nn5J_3DModel.addDenseLayer(64)
+    nn5J_3DModel.addDenseLayer(64)
+    nn5J_3DModel.addDenseLayer(64)
+    nn5J_3DModel.setEpochsNumber(100)
+    nn5J_3DModel.setBatchSize(32)
+    nn5J_3DModel.setEarlyStopping(50)
+    nn5J_3DModel.finalizeAdamModel(0.0001)
+    modelsList.append(nn5J_3DModel)
+
+modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList, nn5J_3D[retrieveTrainingSetInputString],
+                                                                        nn5J_3D[retrieveTrainingSetOutputString], 
+                                                                            nn5J_3D[retrieveTestSetInputString],
+                                                                                nn5J_3D[retrieveTestSeOutputString])
+
+modelsList.clear()
+
+modelProperties = AverageModelProperties(nn5J_3DModel, modelPerformances[retrieveAvgMSEString], 
+                                         modelPerformances[retrieveAvgTestSetMSEString], 
+                                            modelPerformances[retrieveTrainingTimeString],
+                                                modelPerformances[retrieveHistoryString])
+
+modelsPerformances.append(modelProperties)
+
+for i in range(3):
+    nn5J_3D = FKNNFactory().create5J_3D_NN(True)
+    nn5J_3DModel = nn5J_3D[retrieveModelString]
+    nn5J_3DModel.addDenseLayer(64)
+    nn5J_3DModel.addDenseLayer(64)
+    nn5J_3DModel.addDenseLayer(64)
+    nn5J_3DModel.addDenseLayer(64)
+    nn5J_3DModel.setEpochsNumber(100)
+    nn5J_3DModel.setBatchSize(32)
+    nn5J_3DModel.setEarlyStopping(50)
+    nn5J_3DModel.finalizeAdamModel(0.01)
+    modelsList.append(nn5J_3DModel)
+
+modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList, nn5J_3D[retrieveTrainingSetInputString],
+                                                                        nn5J_3D[retrieveTrainingSetOutputString], 
+                                                                            nn5J_3D[retrieveTestSetInputString],
+                                                                                nn5J_3D[retrieveTestSeOutputString])
+
+modelsList.clear()
+
+modelProperties = AverageModelProperties(nn5J_3DModel, modelPerformances[retrieveAvgMSEString], 
+                                         modelPerformances[retrieveAvgTestSetMSEString], 
+                                            modelPerformances[retrieveTrainingTimeString],
+                                                modelPerformances[retrieveHistoryString])
+
+modelsPerformances.append(modelProperties)
+
+for i in range(3):
+    nn5J_3D = FKNNFactory().create5J_3D_NN(True)
+    nn5J_3DModel = nn5J_3D[retrieveModelString]
+    nn5J_3DModel.addDenseLayer(64)
+    nn5J_3DModel.addDenseLayer(64)
+    nn5J_3DModel.addDenseLayer(64)
+    nn5J_3DModel.addDenseLayer(64)
+    nn5J_3DModel.addDenseLayer(64)
+    nn5J_3DModel.setEpochsNumber(100)
+    nn5J_3DModel.setBatchSize(32)
+    nn5J_3DModel.setEarlyStopping(50)
+    nn5J_3DModel.finalizeAdamModel(0.001)
+    modelsList.append(nn5J_3DModel)
+
+modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList, nn5J_3D[retrieveTrainingSetInputString],
+                                                                        nn5J_3D[retrieveTrainingSetOutputString], 
+                                                                            nn5J_3D[retrieveTestSetInputString],
+                                                                                nn5J_3D[retrieveTestSeOutputString])
+
+modelsList.clear()
+
+modelProperties = AverageModelProperties(nn5J_3DModel, modelPerformances[retrieveAvgMSEString], 
+                                         modelPerformances[retrieveAvgTestSetMSEString], 
+                                            modelPerformances[retrieveTrainingTimeString],
+                                                modelPerformances[retrieveHistoryString])
+
+modelsPerformances.append(modelProperties)
+
+for i in range(3):
+    nn5J_3D = FKNNFactory().create5J_3D_NN(True)
+    nn5J_3DModel = nn5J_3D[retrieveModelString]
+    nn5J_3DModel.addDenseLayer(64)
+    nn5J_3DModel.addDenseLayer(64)
+    nn5J_3DModel.addDenseLayer(64)
+    nn5J_3DModel.addDenseLayer(64)
+    nn5J_3DModel.addDenseLayer(64)
+    nn5J_3DModel.setEpochsNumber(100)
+    nn5J_3DModel.setBatchSize(32)
+    nn5J_3DModel.setEarlyStopping(50)
+    nn5J_3DModel.finalizeAdamModel(0.0001)
+    modelsList.append(nn5J_3DModel)
+
+modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList, nn5J_3D[retrieveTrainingSetInputString],
+                                                                        nn5J_3D[retrieveTrainingSetOutputString], 
+                                                                            nn5J_3D[retrieveTestSetInputString],
+                                                                                nn5J_3D[retrieveTestSeOutputString])
+
+modelsList.clear()
+
+modelProperties = AverageModelProperties(nn5J_3DModel, modelPerformances[retrieveAvgMSEString], 
+                                         modelPerformances[retrieveAvgTestSetMSEString], 
+                                            modelPerformances[retrieveTrainingTimeString],
+                                                modelPerformances[retrieveHistoryString])
+
+modelsPerformances.append(modelProperties)
+
+for i in range(3):
+    nn5J_3D = FKNNFactory().create5J_3D_NN(True)
+    nn5J_3DModel = nn5J_3D[retrieveModelString]
+    nn5J_3DModel.addDenseLayer(64)
+    nn5J_3DModel.addDenseLayer(64)
+    nn5J_3DModel.addDenseLayer(64)
+    nn5J_3DModel.addDenseLayer(64)
+    nn5J_3DModel.addDenseLayer(64)
+    nn5J_3DModel.setEpochsNumber(100)
+    nn5J_3DModel.setBatchSize(32)
+    nn5J_3DModel.setEarlyStopping(50)
+    nn5J_3DModel.finalizeAdamModel(0.01)
+    modelsList.append(nn5J_3DModel)
+
+modelPerformances = KFoldCrossValidation().performKFoldCrossValidation(modelsList, nn5J_3D[retrieveTrainingSetInputString],
+                                                                        nn5J_3D[retrieveTrainingSetOutputString], 
+                                                                            nn5J_3D[retrieveTestSetInputString],
+                                                                                nn5J_3D[retrieveTestSeOutputString])
+
+modelsList.clear()
+
+modelProperties = AverageModelProperties(nn5J_3DModel, modelPerformances[retrieveAvgMSEString], 
+                                         modelPerformances[retrieveAvgTestSetMSEString], 
+                                            modelPerformances[retrieveTrainingTimeString],
+                                                modelPerformances[retrieveHistoryString])
 
 modelsPerformances.append(modelProperties)
 
