@@ -1,3 +1,13 @@
-
 *.pyc
 Task1-DeepLearning/HW1/.vscode/launch.json
+Task1-DeepLearning/venv
+Task1-DeepLearning/.vscode
+Task1-DeepLearning/HW1/.vscode
+Task1DeepLearning/HW1/Application/PerformaceEvaluation/__pycache__
+Task1-DeepLearning/HW1/Application/Charts/__pycache__
+Task1-DeepLearning/HW1/Application/NeuralNetwork/__pycache__
+Task1-DeepLearning/HW1/Application/Jacobian/__pycache__
+Task1-DeepLearning/HW1/Application/CSVParser/__pycache__
+Task1-DeepLearning/HW1/Application/PerformaceEvaluation/__pycache__
+Task1-DeepLearning/HW1/Application/Jacobian/__pycache__
+Task1-DeepLearning/HW1/Application/PerformaceEvaluation/__pycache__/KFoldCrossValidation.cpython-3
