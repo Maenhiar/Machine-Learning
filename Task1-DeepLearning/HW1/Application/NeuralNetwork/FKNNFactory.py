@@ -31,8 +31,8 @@ class FKNNFactory():
 
         csvFilePath = os.path.join(self.__csvTrainingSetFilePath, 'r2', 'r2_23_100k.csv')
         csvParser = CSVParser_2J_2D(csvFilePath)
-        #trainingSetInput = np.concatenate((partialTrainingSetInput, csvParser.getInput()), axis=0)
-        #trainingSetOutput = np.concatenate((partialTrainingSetOutput, csvParser.getOutput()), axis=0)
+        trainingSetInput = np.concatenate((partialTrainingSetInput, csvParser.getInput()), axis=0)
+        trainingSetOutput = np.concatenate((partialTrainingSetOutput, csvParser.getOutput()), axis=0)
 
         csvFilePath = os.path.join(self.__csvTestSetFilePath, 'r2', 'r2_26_100k.csv')
         csvParser = CSVParser_2J_2D(csvFilePath)
@@ -41,14 +41,14 @@ class FKNNFactory():
         
         csvFilePath = os.path.join(self.__csvTestSetFilePath, 'r2', 'r2_27_100k.csv')
         csvParser = CSVParser_2J_2D(csvFilePath)
-        #testSetInput = np.concatenate((partialTestSetInput, csvParser.getInput()), axis=0)
-       # testSetOutput = np.concatenate((partialTestSetOutput, csvParser.getOutput()), axis=0)
+        testSetInput = np.concatenate((partialTestSetInput, csvParser.getInput()), axis=0)
+        testSetOutput = np.concatenate((partialTestSetOutput, csvParser.getOutput()), axis=0)
 
         modelData = {
-            self.__trainingSetInputDictionaryKey: partialTrainingSetInput,
-            self.__trainingSetOutputDictionaryKey: partialTrainingSetOutput,
-            self.__testSetInputDictionaryKey: partialTestSetInput,
-            self.__testSetOutputDictionaryKey: partialTestSetOutput,
+            self.__trainingSetInputDictionaryKey: trainingSetInput,
+            self.__trainingSetOutputDictionaryKey: trainingSetOutput,
+            self.__testSetInputDictionaryKey: testSetInput,
+            self.__testSetOutputDictionaryKey: testSetOutput,
             self.__modelDictionaryKey: NN_2J_2D(useStaticSeed)
         }
 
@@ -62,8 +62,8 @@ class FKNNFactory():
 
         csvFilePath = os.path.join(self.__csvTrainingSetFilePath, 'r3', 'r3_28_100k.csv')
         csvParser = CSVParser_3J_2D(csvFilePath)
-       # trainingSetInput = np.concatenate((partialTrainingSetInput, csvParser.getInput()), axis=0)
-        #trainingSetOutput = np.concatenate((partialTrainingSetOutput, csvParser.getOutput()), axis=0)
+        trainingSetInput = np.concatenate((partialTrainingSetInput, csvParser.getInput()), axis=0)
+        trainingSetOutput = np.concatenate((partialTrainingSetOutput, csvParser.getOutput()), axis=0)
 
         csvFilePath = os.path.join(self.__csvTestSetFilePath, 'r3', 'r3_20_100k.csv')
         csvParser = CSVParser_3J_2D(csvFilePath)
@@ -72,14 +72,14 @@ class FKNNFactory():
 
         csvFilePath = os.path.join(self.__csvTestSetFilePath, 'r3', 'r3_29_100k.csv')
         csvParser = CSVParser_3J_2D(csvFilePath)
-        #testSetInput = np.concatenate((partialTestSetInput, csvParser.getInput()), axis=0)
-       # testSetOutput = np.concatenate((partialTestSetOutput, csvParser.getOutput()), axis=0)
+        testSetInput = np.concatenate((partialTestSetInput, csvParser.getInput()), axis=0)
+        testSetOutput = np.concatenate((partialTestSetOutput, csvParser.getOutput()), axis=0)
         
         modelData = {
-            self.__trainingSetInputDictionaryKey: partialTrainingSetInput,
-            self.__trainingSetOutputDictionaryKey: partialTrainingSetOutput,
-            self.__testSetInputDictionaryKey: partialTestSetInput,
-            self.__testSetOutputDictionaryKey: partialTestSetOutput,
+            self.__trainingSetInputDictionaryKey: trainingSetInput,
+            self.__trainingSetOutputDictionaryKey: trainingSetOutput,
+            self.__testSetInputDictionaryKey: testSetInput,
+            self.__testSetOutputDictionaryKey: testSetOutput,
             self.__modelDictionaryKey: NN_3J_2D(useStaticSeed)
         }
 
@@ -93,8 +93,8 @@ class FKNNFactory():
 
         csvFilePath = os.path.join(self.__csvTrainingSetFilePath, 'r5', 'r5_30_100k.csv')
         csvParser = CSVParser_5J_3D(csvFilePath)
-        #trainingSetInput = np.concatenate((partialTrainingSetInput, csvParser.getInput()), axis=0)
-       # trainingSetOutput = np.concatenate((partialTrainingSetOutput, csvParser.getOutput()), axis=0)
+        trainingSetInput = np.concatenate((partialTrainingSetInput, csvParser.getInput()), axis=0)
+        trainingSetOutput = np.concatenate((partialTrainingSetOutput, csvParser.getOutput()), axis=0)
 
         csvFilePath = os.path.join(self.__csvTestSetFilePath, 'r5', 'r5_22_100k.csv')
         csvParser = CSVParser_5J_3D(csvFilePath)
@@ -103,14 +103,14 @@ class FKNNFactory():
 
         csvFilePath = os.path.join(self.__csvTestSetFilePath, 'r5', 'r5_27_100k.csv')
         csvParser = CSVParser_5J_3D(csvFilePath)
-       # testSetInput = np.concatenate((partialTestSetInput, csvParser.getInput()), axis=0)
-        #testSetOutput = np.concatenate((partialTestSetOutput, csvParser.getOutput()), axis=0)
+        testSetInput = np.concatenate((partialTestSetInput, csvParser.getInput()), axis=0)
+        testSetOutput = np.concatenate((partialTestSetOutput, csvParser.getOutput()), axis=0)
         
         modelData = {
-            self.__trainingSetInputDictionaryKey: partialTrainingSetInput,
-            self.__trainingSetOutputDictionaryKey: partialTrainingSetOutput,
-            self.__testSetInputDictionaryKey: partialTestSetInput,
-            self.__testSetOutputDictionaryKey: partialTestSetOutput,
+            self.__trainingSetInputDictionaryKey: trainingSetInput,
+            self.__trainingSetOutputDictionaryKey: trainingSetOutput,
+            self.__testSetInputDictionaryKey: testSetInput,
+            self.__testSetOutputDictionaryKey: testSetOutput,
             self.__modelDictionaryKey: NN_5J_3D(useStaticSeed)
         }
 
