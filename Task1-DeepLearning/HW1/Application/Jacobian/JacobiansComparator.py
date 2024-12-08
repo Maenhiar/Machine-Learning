@@ -35,3 +35,9 @@ def FK_Jacobian(model, x):
         y = FK(model, x)
 
     return tape.jacobian(y, x)
+
+def computeMatrixesDifference(matrix1, matrix2):
+    return np.abs(matrix1 - matrix2)
+
+def computeNorm(matrix1, matrix2):
+    return np.linalg.norm(matrix1 - matrix2, 'fro')

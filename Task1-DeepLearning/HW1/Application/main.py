@@ -4,7 +4,7 @@ from Charts.LossPlotter import LossPlotter
 from NeuralNetwork.FKNNFactory import FKNNFactory
 from keras.layers import InputLayer
 from PerformaceEvaluation.KFoldCrossValidation import KFoldCrossValidation
-from Jacobian.JacobiansComparator import FK_Jacobian, computeAnalyticalJacobian
+from Jacobian.JacobiansComparator import FK_Jacobian, computeAnalyticalJacobian, computeMatrixesDifference, computeNorm
 from NeuralNetwork.AverageModelProperties import AverageModelProperties
 
 def printJacobians(bestModel):
@@ -15,7 +15,8 @@ def printJacobians(bestModel):
     
     print("Analytical Jacobian:\n", jacobian_analytical)
     print("Model computed Jacobian:\n", computedJacobian.numpy())
-    print("Difference:", np.abs(computedJacobian.numpy() - jacobian_analytical))
+    print("Difference:\n", computeMatrixesDifference(computedJacobian.numpy(), jacobian_analytical))
+    print("Norm: ", computeNorm(computedJacobian.numpy(), jacobian_analytical))
 
 def printModelDataAndPerformances(model):
     model.showModelSummary()
