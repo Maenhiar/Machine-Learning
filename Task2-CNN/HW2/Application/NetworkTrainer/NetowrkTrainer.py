@@ -1,44 +1,66 @@
 import torch
+from sklearn.metrics import precision_score, recall_score, f1_score
 
 class NetowrkTrainer:
     
     @staticmethod
-    def train_loop(dataloader, model, loss_fn, optimizer, batch_size):
-        size = len(dataloader.dataset)
-        # Set the model to training mode - important for batch normalization and dropout layers
-        # Unnecessary in this situation but added for best practices
-        model.train()
-        for batch, (X, y) in enumerate(dataloader):
-            # Compute prediction and loss
-            pred = model(X)
-            loss = loss_fn(pred, y)
+    def train_loop(dataloader, model, criterion, optimizer, epochs):
+        for epoch in range(epochs):  # loop over the dataset multiple times
 
-            # Backpropagation
-            loss.backward()
-            optimizer.step()
-            optimizer.zero_grad()
+            running_loss = 0.0
+            correct = 0
+            total = 0
+            for i, data in enumerate(dataloader, 0):
+                # get the inputs; data is a list of [inputs, labels]
+                inputs, labels = data
 
-            if batch % 100 == 0:
-                loss, current = loss.item(), batch * batch_size + len(X)
-                print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
+                # zero the parameter gradients
+                optimizer.zero_grad()
+
+                # forward + backward + optimize
+                outputs = model(inputs)
+                loss = criterion(outputs, labels)
+                loss.backward()
+                optimizer.step()
+
+                # print statistics
+                
+                running_loss += loss.item()  # Aggiungi la perdita alla somma totale
+                # Calcola le previsioni
+                _, predicted = torch.max(outputs, 1)  # Trova l'indice della classe con probabilità massima
+                total += labels.size(0)  # Aggiungi il numero di immagini processate
+                correct += (predicted == labels).sum().item()  # Conta le predizioni corrette
+
+            # Stampa il progresso dopo ogni epoca
+            print(f'Epoca [{epoch+1}/{epochs}], \
+                    Loss: {running_loss/len(dataloader):.4f}, \
+                    Accuracy: {100 * correct / total:.2f}%')
+
+        print('Finished Training')
 
     @staticmethod
-    def test_loop(dataloader, model, loss_fn):
-        # Set the model to evaluation mode - important for batch normalization and dropout layers
-        # Unnecessary in this situation but added for best practices
+    def test_loop(testloader, model):
         model.eval()
-        size = len(dataloader.dataset)
-        num_batches = len(dataloader)
-        test_loss, correct = 0, 0
-
-        # Evaluating the model with torch.no_grad() ensures that no gradients are computed during test mode
-        # also serves to reduce unnecessary gradient computations and memory usage for tensors with requires_grad=True
+        correct = 0
+        total = 0
+        all_labels = []
+        all_predictions = []
+        
         with torch.no_grad():
-            for X, y in dataloader:
-                pred = model(X)
-                test_loss += loss_fn(pred, y).item()
-                correct += (pred.argmax(1) == y).type(torch.float).sum().item()
-
-        test_loss /= num_batches
-        correct /= size
-        print(f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
+            for inputs, labels in testloader:
+                outputs = model(inputs)
+                _, predicted = torch.max(outputs, 1)
+                total += labels.size(0)
+                correct += (predicted == labels).sum().item()
+                
+                all_labels.extend(labels.cpu().numpy())
+                all_predictions.extend(predicted.cpu().numpy())
+        
+        precision = precision_score(all_labels, all_predictions, average='weighted')
+        recall = recall_score(all_labels, all_predictions, average='weighted')
+        f1 = f1_score(all_labels, all_predictions, average='weighted')
+    
+        print(f"Accuratezza sul test set: {100 * correct / total:.2f}%")
+        print(f"Precisione: {precision:.4f}")
+        print(f"Recall: {recall:.4f}")
+        print(f"F1 Score: {f1:.4f}")
