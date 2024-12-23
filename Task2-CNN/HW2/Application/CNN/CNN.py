@@ -1,18 +1,30 @@
-from torch import nn
+import torch
+import torch.nn as nn
 
 class CNN(nn.Module):
     def __init__(self):
         super().__init__()
-        self.flatten = nn.Flatten()
-        self.linear_relu_stack = nn.Sequential(
-            nn.Linear(28*28, 512),
+        
+        # Definizione della rete usando nn.Sequential
+        self.model = nn.Sequential(
+            # Convolutional Layer 1: 6 filters, 5x5 kernel
+            nn.Conv2d(3, 6, kernel_size=5),  # Input: 3x96x96, Output: 6x92x92
             nn.ReLU(),
-            nn.Linear(512, 512),
+            nn.AvgPool2d(2),  # Output: 6x46x46
+            
+            # Convolutional Layer 2: 16 filters, 5x5 kernel
+            nn.Conv2d(6, 16, kernel_size=5),  # Output: 16x42x42
             nn.ReLU(),
-            nn.Linear(512, 10),
+            nn.AvgPool2d(2),  # Output: 16x21x21
+            
+            # Fully connected layer (Flatten the 3D tensor into 1D)
+            nn.Flatten(),
+            nn.Linear(16 * 21 * 21, 120),  # Output: 120
+            nn.ReLU(),
+            nn.Linear(120, 84),  # Output: 84
+            nn.ReLU(),
+            nn.Linear(84, 10)  # Output: 10 (for 10 classes, for example)
         )
-
+        
     def forward(self, x):
-        x = self.flatten(x)
-        logits = self.linear_relu_stack(x)
-        return logits
+        return self.model(x)

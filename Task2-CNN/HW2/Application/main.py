@@ -1,32 +1,18 @@
-from torch.utils.data import DataLoader
-from torchvision import datasets
-from torchvision.transforms import ToTensor
+import torch
+from torch import nn
+from  DatasetLoader.DatasetLoader import DatasetLoader
+from NetworkTrainer.NetowrkTrainer import NetowrkTrainer
+from CNN.CNN import CNN
 
-training_data = datasets.FashionMNIST(
-    root="data",
-    train=True,
-    download=True,
-    transform=ToTensor()
-)
-
-test_data = datasets.FashionMNIST(
-    root="data",
-    train=False,
-    download=True,
-    transform=ToTensor()
-)
-
-train_dataloader = DataLoader(training_data, batch_size=64)
-test_dataloader = DataLoader(test_data, batch_size=64)
-
-
-
+batchSize = 64
+trainingSetDataLoader = DatasetLoader.getTrainingSetDataLoader(batchSize)
+testSetDataLoader = DatasetLoader.getTestSetDataLoader(batchSize)
+model = CNN()
 loss_fn = nn.CrossEntropyLoss()
-            optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
-
-            epochs = 10
-            for t in range(epochs):
-                print(f"Epoch {t+1}\n-------------------------------")
-                train_loop(train_dataloader, model, loss_fn, optimizer)
-                test_loop(test_dataloader, model, loss_fn)
-            print("Done!")
+optimizer = torch.optim.SGD(model.parameters(), lr = 1e-3)
+epochs = 10
+for t in range(epochs):
+    print(f"Epoch {t+1}\n-------------------------------")
+    NetowrkTrainer.train_loop(trainingSetDataLoader, model, loss_fn, optimizer, batchSize)
+    NetowrkTrainer.test_loop(testSetDataLoader, model, loss_fn)
+print("Done!")
