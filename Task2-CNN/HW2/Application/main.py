@@ -9,6 +9,8 @@ from CNN.NetworkTrainer import NetworkTrainer
 from CNN.NetworkTester import NetworkTester 
 from Plotters.ChartPlotter import ChartPlotter
 from Plotters.ConfusionMatrixPlotter import ConfusionMatrixPlotter
+import gymnasium as gym
+from Simulator.play_policy_template import play
 
 def set_seed(seed):
     random.seed(seed)
@@ -25,7 +27,7 @@ testSetDataLoader = DatasetLoader.getTestSetDataLoader(batchSize)
 model = CarRacingCNN()
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(model.parameters(), lr = 0.001, momentum = 0.9)
-epochs = 50
+epochs = 1
 
 trainingLosses, trainingAccuracies, trainingPrecisions, trainingRecalls, trainingF1Scores, trainingTime = \
     NetworkTrainer.train_loop(trainingSetDataLoader, model, criterion, optimizer, epochs)
@@ -54,3 +56,17 @@ for i in range(5):  # Le tue classi vanno da 0 a 4
 ConfusionMatrixPlotter.plot(labels, predictions)
 
 print("Done!")
+
+env_arguments = {
+    'domain_randomize': False,
+    'continuous': False,
+    'render_mode': 'human'
+}
+
+env_name = 'CarRacing-v3'
+env = gym.make(env_name, **env_arguments)
+
+print("Environment:", env_name)
+print("Action space:", env.action_space)
+print("Observation space:", env.observation_space)
+play(env, model)

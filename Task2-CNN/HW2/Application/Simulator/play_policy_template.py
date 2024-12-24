@@ -1,4 +1,5 @@
 import sys
+import numpy as np
 
 try:
     import gymnasium as gym
@@ -28,22 +29,6 @@ def play(env, model):
 
 
 
-env_arguments = {
-    'domain_randomize': False,
-    'continuous': False,
-    'render_mode': 'human'
-}
 
-env_name = 'CarRacing-v2'
-env = gym.make(env_name, **env_arguments)
-
-print("Environment:", env_name)
-print("Action space:", env.action_space)
-print("Observation space:", env.observation_space)
-
-# your trained
-model = ... # your trained model
-
-play(env, model)
 
 
