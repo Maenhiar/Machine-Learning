@@ -1,12 +1,7 @@
 import random
 import numpy as np
-from torch import nn
 import torch
-import torch.optim as optim
-from DatasetLoader.DatasetLoader import DatasetLoader
-from CNN.CarRacingCNN import CarRacingCNN
-from CNN.NetworkTrainer import NetworkTrainer
-from CNN.NetworkTester import NetworkTester 
+from NetworkFitter.NetworkFitter import NetworkFitter
 from Plotters.ChartPlotter import ChartPlotter
 from Plotters.ConfusionMatrixPlotter import ConfusionMatrixPlotter
 import gymnasium as gym
@@ -21,38 +16,23 @@ seed_value = 42
 set_seed(seed_value)
 torch.use_deterministic_algorithms(True)
 
-batchSize = 64
-trainingSetDataLoader = DatasetLoader.getTrainingSetDataLoader(batchSize)
-testSetDataLoader = DatasetLoader.getTestSetDataLoader(batchSize)
-model = CarRacingCNN()
-criterion = nn.CrossEntropyLoss()
-optimizer = optim.SGD(model.parameters(), lr = 0.001, momentum = 0.9)
-epochs = 1
-
-trainingLosses, trainingAccuracies, trainingPrecisions, trainingRecalls, trainingF1Scores, trainingTime = \
-    NetworkTrainer.train_loop(trainingSetDataLoader, model, criterion, optimizer, epochs)
-
-ChartPlotter.plot(epochs, trainingLosses, trainingAccuracies, trainingPrecisions, \
-                  trainingRecalls, trainingF1Scores)
-
-print("Training time: ", trainingTime)
+print('Training...')
+networkFitter = NetworkFitter()
 print('Finished Training')
 
+print("Training time: ", networkFitter.getTrainingTime())
+trainingLosses, trainingAccuracies, trainingPrecisions, \
+                  trainingRecalls, trainingF1Scores = networkFitter.getTrainingMetrics()
+ChartPlotter.plot(networkFitter.getEpochsNumber(), trainingLosses, trainingAccuracies, trainingPrecisions, \
+                  trainingRecalls, trainingF1Scores)
+
+validationLosses, validationAccuracies, validationPrecisions, \
+                  validationRecalls, validationF1Scores = networkFitter.getValidationMetrics()
+ChartPlotter.plot(networkFitter.getEpochsNumber(), validationLosses, validationAccuracies, validationPrecisions, \
+                  validationRecalls, validationF1Scores)
+
 accuracy, precision, recall, f1Score, classesPrecisions, classesRecalls, \
-    classesF1Scores, labels, predictions = NetworkTester.test_loop(testSetDataLoader, model)
-
-print(f"Accuratezza sul test set: {accuracy:.2f}%")
-print(f"Precisione media (weighted): {precision:.4f}")
-print(f"Recall medio (weighted): {recall:.4f}")
-print(f"F1 Score medio (weighted): {f1Score:.4f}")
-
-# Stampa delle metriche per ogni classe
-for i in range(5):  # Le tue classi vanno da 0 a 4
-    print(f"\nClasse {i}:")
-    print(f"Precision: {classesPrecisions[i]:.4f}")
-    print(f"Recall: {classesRecalls[i]:.4f}")
-    print(f"F1 Score: {classesF1Scores[i]:.4f}")
-
+    classesF1Scores, predictions, labels = networkFitter.getTestMetrics()
 ConfusionMatrixPlotter.plot(labels, predictions)
 
 print("Done!")
@@ -69,4 +49,5 @@ env = gym.make(env_name, **env_arguments)
 print("Environment:", env_name)
 print("Action space:", env.action_space)
 print("Observation space:", env.observation_space)
-play(env, model)
+
+play(env, networkFitter.getModel())
