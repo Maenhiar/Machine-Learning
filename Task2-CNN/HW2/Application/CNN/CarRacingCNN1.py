@@ -1,6 +1,9 @@
 import torch.nn as nn
 
 class CarRacingCNN1(nn.Module):
+    """
+    This class implements a CNN.
+    """
     def __init__(self):
         super().__init__()
         

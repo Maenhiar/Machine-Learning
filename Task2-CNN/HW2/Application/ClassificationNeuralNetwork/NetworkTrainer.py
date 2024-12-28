@@ -1,11 +1,24 @@
 import torch
-from NetworkFitter.AbstractNetworkTrainer import AbstractNetworkTrainer
+from ClassificationNeuralNetwork.AbstractClassificationNN import AbstractClassificationNN
 
-class NetworkTrainer(AbstractNetworkTrainer):
+class NetworkTrainer(AbstractClassificationNN):
+    """
+    This class performs the training of a 
+    classification neural network.
+    """
     def __init__(self):
         super().__init__()
 
     def fit(self, dataLoader, model, optimizer, criterion):
+        """
+        Trains the model with the provided hyperparameters.
+
+        Args:
+        dataLoader (DataLoader): The training set.
+        model(nn.Module): The model that must be trained.
+        optimizer (optim): The chosen optimizer.
+        criterion (nn): The chosen loss function.
+        """
         epochLabels = []
         epochPredictions = []
         epochLoss = 0.0

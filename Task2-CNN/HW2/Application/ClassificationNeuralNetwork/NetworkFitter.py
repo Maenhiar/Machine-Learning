@@ -1,10 +1,25 @@
 import time
 from torch import nn
 from DatasetLoader.DatasetLoader import DatasetLoader
-from NetworkFitter.NetworkTrainer import NetworkTrainer
-from NetworkFitter.NetworkEvaluator import NetworkEvaluator
+from ClassificationNeuralNetwork.NetworkTrainer import NetworkTrainer
+from ClassificationNeuralNetwork.NetworkEvaluator import NetworkEvaluator
 
 class NetworkFitter():
+    """
+    This class is responsible for managing the training, the evaluation
+    and testing of a neural network.
+
+    Attributes:
+        __networkTrainer (NetworkTrainer): The object responsible for
+                                            training the network.
+        __networkValidator (NetworkEvaluator): The object responsible for
+                                                performing the evaluation steps.
+        __networkTester (NetworkEvaluator): The object responsible for
+                                                testing the network.
+        __epochsNumber (int): The The number of epochs for which the training will proceed.
+        __trainingTime (int): Total training time.
+        __trainedModel (nn.Module): The trained model.
+    """
     __networkTrainer = NetworkTrainer()
     __networkValidator = NetworkEvaluator()
     __networkTester = NetworkEvaluator()
@@ -34,6 +49,13 @@ class NetworkFitter():
         return self.__networkTester.getAllMetrics()
     
     def fit(self, model, optimizer):
+        """
+        Performs model training, validation and testing.
+
+        Args:
+        model(nn.Module): The model that must be trained and tested.
+        optimizer (optim): The chosen optimizer.
+        """
         batchSize = 64
         trainingSetDataLoader, validationSetDataLoader = DatasetLoader.getTrainingSetDataLoader(batchSize)
         criterion = nn.CrossEntropyLoss()
@@ -41,7 +63,7 @@ class NetworkFitter():
         self.__networkValidator = NetworkEvaluator()
 
         startTime = time.time()
-        # Fit the model with training set and validation set
+        
         for _ in range(self.__epochsNumber):
             self.__networkTrainer.fit(trainingSetDataLoader, model, optimizer, criterion)
             self.__networkValidator.fit(validationSetDataLoader, model, criterion)
@@ -49,7 +71,7 @@ class NetworkFitter():
         endTime = time.time()
         self.__trainingTime = endTime - startTime
 
-        # Testing the trained model with test set
         testSetDataLoader = DatasetLoader.getTestSetDataLoader(batchSize)
         self.__networkTester = NetworkEvaluator()
-        self.__trainedModel = self.__networkTester.fit(testSetDataLoader, model, criterion)
+        self.__networkTester.fit(testSetDataLoader, model, criterion)
+        self.__trainedModel = model

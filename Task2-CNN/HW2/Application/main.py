@@ -6,7 +6,7 @@ import torch.optim as optim
 from CNN.CarRacingCNN1 import CarRacingCNN1
 from CNN.CarRacingCNN2 import CarRacingCNN2
 from CNN.CarRacingCNN3 import CarRacingCNN3
-from NetworkFitter.NetworkFitter import NetworkFitter
+from ClassificationNeuralNetwork.NetworkFitter import NetworkFitter
 from Plotters.ChartPlotter import ChartPlotter
 from Plotters.ConfusionMatrixPlotter import ConfusionMatrixPlotter
 import gymnasium as gym
@@ -64,11 +64,13 @@ env_arguments = {
     'render_mode': 'human'
 }
 
-env_name = 'CarRacing-v3'
+env_name = 'CarRacing-v2'
 env = gym.make(env_name, **env_arguments)
 
 print("Environment:", env_name)
 print("Action space:", env.action_space)
 print("Observation space:", env.observation_space)
 
-play(env, networkFitter.getTrainedModel())
+model = networkFitter.getTrainedModel()
+
+play(env, model)
