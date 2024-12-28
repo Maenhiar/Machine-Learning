@@ -6,10 +6,10 @@ class NetworkTrainer(AbstractNetworkTrainer):
         super().__init__()
 
     def fit(self, dataLoader, model, optimizer, criterion):
+        epochLabels = []
+        epochPredictions = []
+        epochLoss = 0.0
         model.train()
-        running_loss = 0.0
-        labels = []
-        predictions = []
         for input, label in dataLoader:
             optimizer.zero_grad()
             outputs = model(input)
@@ -17,17 +17,10 @@ class NetworkTrainer(AbstractNetworkTrainer):
             loss.backward()
             optimizer.step()
 
-            running_loss += loss.item()
             _, prediction = torch.max(outputs, 1)
-
-            labels.extend(label.numpy())
-            predictions.extend(prediction.numpy())
-
-            loss, accuracy, precision, recall, f1Score = \
-                self._getMetrics(running_loss, len(dataLoader), labels, predictions, "weighted")
-
-        self._losses.append(loss)
-        self._accuracies.append(accuracy)
-        self._precisions.append(precision)
-        self._recalls.append(recall)
-        self._f1Scores.append(f1Score)
+            
+            epochLabels.extend(label.numpy())
+            epochPredictions.extend(prediction.numpy())
+            epochLoss += loss.item()
+        
+        self._updateMetrics(epochLoss / len(dataLoader), epochLabels, epochPredictions)

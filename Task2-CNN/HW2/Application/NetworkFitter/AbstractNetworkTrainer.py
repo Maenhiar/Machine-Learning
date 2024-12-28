@@ -9,30 +9,36 @@ class AbstractNetworkTrainer(ABC):
         self._precisions = []
         self._recalls = []
         self._f1Scores = []
+        self._labels = []
+        self._predictions = []
 
-    def getLosses(self):
-        return self._losses.copy()
+    def getAllMetrics(self):
+        return self._losses.copy(), self._accuracies.copy(), self._precisions.copy(), self._recalls.copy(), \
+                self._f1Scores.copy(), self._labels.copy(), self._predictions.copy()
 
-    def getAccuracies(self):
-        return self._accuracies.copy()
-
-    def getPrecisions(self):
-        return self._precisions.copy()
-
-    def getRecalls(self):
-        return self._recalls.copy()
-
-    def getF1Scores(self):
-        return self._f1Scores.copy()
     
     @abstractmethod
     def fit(self, dataLoader, model, optimizer, criterion):
         pass
 
-    def _getMetrics(self, running_loss, datasetLength, labels, predictions, meanMetric):
-        loss = running_loss / datasetLength
+    def _updateMetrics(self, loss, labels, predictions):        
+        self._losses.append(loss)
+
         accuracy = accuracy_score(labels, predictions)
+        self._accuracies.append(accuracy)
+
+        meanMetric = "weighted"
         precision = precision_score(labels, predictions, average = meanMetric, zero_division = 1)
+        self._precisions.append(precision)
+
         recall = recall_score(labels, predictions, average = meanMetric, zero_division = 1)
+        self._recalls.append(recall)
+
         f1Score = f1_score(labels, predictions, average = meanMetric)
-        return loss, accuracy, precision, recall, f1Score
+        self._f1Scores.append(f1Score)
+
+        self._labels.clear()
+        self._labels.extend(labels)
+
+        self._predictions.clear()
+        self._predictions.extend(predictions)

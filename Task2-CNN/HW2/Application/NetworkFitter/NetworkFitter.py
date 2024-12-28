@@ -1,24 +1,22 @@
 import time
 from torch import nn
-import torch.optim as optim
 from DatasetLoader.DatasetLoader import DatasetLoader
-from CNN.CarRacingCNN import CarRacingCNN
 from NetworkFitter.NetworkTrainer import NetworkTrainer
 from NetworkFitter.NetworkEvaluator import NetworkEvaluator
 
 class NetworkFitter():
-    __model = None
     __networkTrainer = NetworkTrainer()
     __networkValidator = NetworkEvaluator()
     __networkTester = NetworkEvaluator()
     __epochsNumber = 50
     __trainingTime = 0
+    __trainedModel = None
 
     def __init__(self):
-        self.__fit()
+        pass
 
-    def getEpochsNumber(self):
-        return self.__model.copy()
+    def getTrainedModel(self):
+        return self.__trainedModel
     
     def getEpochsNumber(self):
         return self.__epochsNumber
@@ -27,37 +25,31 @@ class NetworkFitter():
         return self.__trainingTime
     
     def getTrainingMetrics(self):
-        return self.__getMetrics(self.__networkTrainer)
+        return self.__networkTrainer.getAllMetrics()
     
     def getValidationMetrics(self):
-        return self.__getMetrics(self.__networkValidator)
+        return self.__networkValidator.getAllMetrics()
     
     def getTestMetrics(self):
-        return self.__getMetrics(self.__networkTester), self.__networkTester.getPredictions(), \
-                self.__networkTester.getLabels()
-
-    def __getMetrics(self, networkFitter):
-        return networkFitter.getLosses(), networkFitter.getAccuracies(), \
-            networkFitter.getPrecisions(), networkFitter.getRecalls(), networkFitter.getF1Scores()
+        return self.__networkTester.getAllMetrics()
     
-    def __fit(self):
+    def fit(self, model, optimizer):
         batchSize = 64
         trainingSetDataLoader, validationSetDataLoader = DatasetLoader.getTrainingSetDataLoader(batchSize)
-        self.__model = CarRacingCNN()
         criterion = nn.CrossEntropyLoss()
-        optimizer = optim.SGD(self.__model.parameters(), lr = 0.001, momentum = 0.9)
         self.__networkTrainer = NetworkTrainer()
         self.__networkValidator = NetworkEvaluator()
 
         startTime = time.time()
+        # Fit the model with training set and validation set
         for _ in range(self.__epochsNumber):
-            self.__networkTrainer.fit(trainingSetDataLoader, self.__model, optimizer, criterion)
-            self.__networkValidator.fit(validationSetDataLoader, self.__model, criterion)
+            self.__networkTrainer.fit(trainingSetDataLoader, model, optimizer, criterion)
+            self.__networkValidator.fit(validationSetDataLoader, model, criterion)
 
         endTime = time.time()
         self.__trainingTime = endTime - startTime
 
+        # Testing the trained model with test set
         testSetDataLoader = DatasetLoader.getTestSetDataLoader(batchSize)
         self.__networkTester = NetworkEvaluator()
-        self.__networkTester.fit(testSetDataLoader, self.__model, criterion)
-
+        self.__trainedModel = self.__networkTester.fit(testSetDataLoader, model, criterion)

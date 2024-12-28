@@ -1,6 +1,6 @@
 import torch.nn as nn
 
-class CarRacingCNN(nn.Module):
+class CarRacingCNN2(nn.Module):
     def __init__(self):
         super().__init__()
         

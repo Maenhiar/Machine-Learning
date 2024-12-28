@@ -1,6 +1,11 @@
 import random
 import numpy as np
+from sklearn.metrics import classification_report
 import torch
+import torch.optim as optim
+from CNN.CarRacingCNN1 import CarRacingCNN1
+from CNN.CarRacingCNN2 import CarRacingCNN2
+from CNN.CarRacingCNN3 import CarRacingCNN3
 from NetworkFitter.NetworkFitter import NetworkFitter
 from Plotters.ChartPlotter import ChartPlotter
 from Plotters.ConfusionMatrixPlotter import ConfusionMatrixPlotter
@@ -16,24 +21,40 @@ seed_value = 42
 set_seed(seed_value)
 torch.use_deterministic_algorithms(True)
 
-print('Training...')
+model = CarRacingCNN1()
+optimizer = optim.SGD(model.parameters(), lr = 0.001, momentum = 0.9)
 networkFitter = NetworkFitter()
+print('Training the model...')
+networkFitter.fit(model, optimizer)
 print('Finished Training')
-
 print("Training time: ", networkFitter.getTrainingTime())
-trainingLosses, trainingAccuracies, trainingPrecisions, \
-                  trainingRecalls, trainingF1Scores = networkFitter.getTrainingMetrics()
-ChartPlotter.plot(networkFitter.getEpochsNumber(), trainingLosses, trainingAccuracies, trainingPrecisions, \
-                  trainingRecalls, trainingF1Scores)
 
-validationLosses, validationAccuracies, validationPrecisions, \
-                  validationRecalls, validationF1Scores = networkFitter.getValidationMetrics()
-ChartPlotter.plot(networkFitter.getEpochsNumber(), validationLosses, validationAccuracies, validationPrecisions, \
-                  validationRecalls, validationF1Scores)
+# Get training performances
+trainingLosses, trainingAccuracies, trainingPrecisions, trainingRecalls, \
+    trainingF1Scores, trainingLabels, trainingPredictions = networkFitter.getTrainingMetrics()
+print("Training results:")
+print(classification_report(trainingLabels, trainingPredictions, digits = 3))
 
-accuracy, precision, recall, f1Score, classesPrecisions, classesRecalls, \
-    classesF1Scores, predictions, labels = networkFitter.getTestMetrics()
-ConfusionMatrixPlotter.plot(labels, predictions)
+# Get validation performances
+validationLosses, validationAccuracies, validationPrecisions, validationRecalls, \
+    validationF1Scores, validationLabels, validationPredictions = networkFitter.getValidationMetrics()
+print("Validation results:")
+print(classification_report(validationLabels, validationPredictions, digits = 3))
+
+# Plot training and validation performances
+ChartPlotter.plot(networkFitter.getEpochsNumber(), "Loss", trainingLosses, validationLosses)
+ChartPlotter.plot(networkFitter.getEpochsNumber(), "Accuracy", trainingAccuracies, validationAccuracies)
+ChartPlotter.plot(networkFitter.getEpochsNumber(), "Precision", trainingPrecisions, validationPrecisions)
+ChartPlotter.plot(networkFitter.getEpochsNumber(), "Recall", trainingRecalls, validationRecalls)
+ChartPlotter.plot(networkFitter.getEpochsNumber(), "F1-Score", trainingF1Scores, validationF1Scores)
+
+# Get test performances
+_, _, _, _, _, testLabels, testPredictions = networkFitter.getTestMetrics()
+print("Test results:")
+print(classification_report(testLabels, testPredictions, digits = 3))
+
+# Plot confusion matrix
+ConfusionMatrixPlotter.plot(testLabels, testPredictions)
 
 print("Done!")
 
@@ -50,4 +71,4 @@ print("Environment:", env_name)
 print("Action space:", env.action_space)
 print("Observation space:", env.observation_space)
 
-play(env, networkFitter.getModel())
+play(env, networkFitter.getTrainedModel())
