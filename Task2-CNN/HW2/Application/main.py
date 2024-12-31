@@ -5,7 +5,6 @@ import torch
 import torch.optim as optim
 from CNN.CarRacingCNN1 import CarRacingCNN1
 from CNN.CarRacingCNN2 import CarRacingCNN2
-from CNN.CarRacingCNN3 import CarRacingCNN3
 from ClassificationNeuralNetwork.NetworkFitter import NetworkFitter
 from Plotters.ChartPlotter import ChartPlotter
 from Plotters.ConfusionMatrixPlotter import ConfusionMatrixPlotter
@@ -22,7 +21,7 @@ set_seed(seed_value)
 torch.use_deterministic_algorithms(True)
 
 model = CarRacingCNN1()
-optimizer = optim.SGD(model.parameters(), lr = 0.001, momentum = 0.9)
+optimizer = optim.Adam(model.parameters(), lr = 0.0001)
 networkFitter = NetworkFitter()
 print('Training the model...')
 networkFitter.fit(model, optimizer)
@@ -49,7 +48,8 @@ ChartPlotter.plot(networkFitter.getEpochsNumber(), "Recall", trainingRecalls, va
 ChartPlotter.plot(networkFitter.getEpochsNumber(), "F1-Score", trainingF1Scores, validationF1Scores)
 
 # Get test performances
-_, _, _, _, _, testLabels, testPredictions = networkFitter.getTestMetrics()
+testLoss, _, _, _, _, testLabels, testPredictions = networkFitter.getTestMetrics()
+print(testLoss)
 print("Test results:")
 print(classification_report(testLabels, testPredictions, digits = 3))
 
@@ -57,7 +57,7 @@ print(classification_report(testLabels, testPredictions, digits = 3))
 ConfusionMatrixPlotter.plot(testLabels, testPredictions)
 
 print("Done!")
-
+"""
 env_arguments = {
     'domain_randomize': False,
     'continuous': False,
@@ -73,4 +73,4 @@ print("Observation space:", env.observation_space)
 
 model = networkFitter.getTrainedModel()
 
-play(env, model)
+play(env, model)"""

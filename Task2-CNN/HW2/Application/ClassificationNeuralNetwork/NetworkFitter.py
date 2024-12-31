@@ -23,7 +23,7 @@ class NetworkFitter():
     __networkTrainer = NetworkTrainer()
     __networkValidator = NetworkEvaluator()
     __networkTester = NetworkEvaluator()
-    __epochsNumber = 50
+    __epochsNumber = 44
     __trainingTime = 0
     __trainedModel = None
 
@@ -57,21 +57,22 @@ class NetworkFitter():
         optimizer (optim): The chosen optimizer.
         """
         batchSize = 64
-        trainingSetDataLoader, validationSetDataLoader = DatasetLoader.getTrainingSetDataLoader(batchSize)
+        trainingSetDataLoader, validationSetDataLoader = DatasetLoader().getTrainingSetDataLoader(batchSize)
         criterion = nn.CrossEntropyLoss()
         self.__networkTrainer = NetworkTrainer()
         self.__networkValidator = NetworkEvaluator()
 
         startTime = time.time()
         
-        for _ in range(self.__epochsNumber):
+        for i in range(self.__epochsNumber):
+            print("epoch " + str(i) + "/" + str(self.__epochsNumber))
             self.__networkTrainer.fit(trainingSetDataLoader, model, optimizer, criterion)
             self.__networkValidator.fit(validationSetDataLoader, model, criterion)
 
         endTime = time.time()
         self.__trainingTime = endTime - startTime
 
-        testSetDataLoader = DatasetLoader.getTestSetDataLoader(batchSize)
+        testSetDataLoader = DatasetLoader().getTestSetDataLoader(batchSize)
         self.__networkTester = NetworkEvaluator()
         self.__networkTester.fit(testSetDataLoader, model, criterion)
         self.__trainedModel = model

@@ -25,12 +25,12 @@ class NetworkEvaluator(AbstractClassificationNN):
         with torch.no_grad():
             for input, label in dataLoader:
                 outputs = model(input)
-                loss = criterion(outputs, label)
+                currentLoss = criterion(outputs, label)
 
                 _, prediction = torch.max(outputs, 1)
 
                 labels.extend(label.numpy())
                 predictions.extend(prediction.numpy())
-                loss += loss.item()
+                loss += currentLoss.item()
 
             self._updateMetrics(loss / len(dataLoader), labels, predictions)
