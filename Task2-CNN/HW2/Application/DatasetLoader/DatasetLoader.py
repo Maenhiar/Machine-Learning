@@ -25,10 +25,8 @@ class DatasetLoader:
 
         trainingSet, validationSet = train_test_split(trainingSet, test_size = 1/3, random_state = 8)
 
-        trainingSet = DatasetLoader.AugmentationDataset(trainingSet, self.__getToTensorTransformation(), \
-                                                      self.__getImagesPreprocessingTransformations(), \
-                                                        target_class = 4)
-        validationSet = DatasetLoader.BasicDataset(validationSet, self.__getToTensorTransformation())
+        trainingSet = DatasetLoader.CustomDataset(trainingSet, self.__getToTensorTransformation())
+        validationSet = DatasetLoader.CustomDataset(validationSet, self.__getToTensorTransformation())
 
         trainingSetDataLoader = DataLoader(trainingSet, batch_size = batchSize, shuffle = True)
         validationSetDataLoader = DataLoader(validationSet, batch_size = batchSize, shuffle = False)
@@ -69,34 +67,15 @@ class DatasetLoader:
         ])
         return transform
         
-    class AugmentationDataset(torch.utils.data.Dataset):
-        def __init__(self, dataset, basicTransformation, augmentedTransformation, target_class=4):
+    class CustomDataset(torch.utils.data.Dataset):
+        def __init__(self, dataset, transformation, target_class=4):
             self.dataset = dataset
-            self.augmentedTransformation = augmentedTransformation
-            self.basicTransformation = basicTransformation
+            self.augmentedTransformation = transformation
             self.target_class = target_class
 
         def __getitem__(self, index):
             img, label = self.dataset[index]
-
-            if label == 786354:
-                img = self.augmentedTransformation(img)
-            else:
-                img = self.basicTransformation(img)
-
-            return img, label
-
-        def __len__ (self):
-            return len(self.dataset)
-        
-    class BasicDataset(torch.utils.data.Dataset):
-        def __init__(self, dataset, basicTransformation):
-            self.dataset = dataset
-            self.basicTransformation = basicTransformation
-
-        def __getitem__(self, index):
-            img, label = self.dataset[index]
-            img = self.basicTransformation(img)
+            img = self.augmentedTransformation(img)
             return img, label
 
         def __len__ (self):
