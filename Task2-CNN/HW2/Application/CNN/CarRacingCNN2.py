@@ -13,19 +13,17 @@ class CarRacingCNN2(nn.Module):
             nn.BatchNorm2d(6),
             nn.AvgPool2d(2, stride = 2),
 
-            nn.Conv2d(6, 16, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm2d(16),
+            nn.Conv2d(6, 16, kernel_size = 3, stride = 1, padding = 1),
             nn.ReLU(),
+            nn.BatchNorm2d(16),
             nn.AvgPool2d(2, stride = 2),
             
             nn.Flatten(),
             nn.Linear(16 * 24 * 24, 64), 
             nn.ReLU(),
-            nn.Dropout(0.5),
-
+            
             nn.Linear(64, 32), 
             nn.ReLU(),
-            nn.Dropout(0.3),
             nn.Linear(32, 5)
         )
         

@@ -23,8 +23,7 @@ class NetworkFitter():
     __networkTrainer = NetworkTrainer()
     __networkValidator = NetworkEvaluator()
     __networkTester = NetworkEvaluator()
-    __epochsNumber = 44
-    #__epochsNumber = 50
+    __epochsNumber = 50
     __trainingTime = 0
     __trainedModel = None
 

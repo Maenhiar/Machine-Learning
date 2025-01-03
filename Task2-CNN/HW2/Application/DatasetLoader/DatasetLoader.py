@@ -25,7 +25,7 @@ class DatasetLoader:
 
         trainingSet, validationSet = train_test_split(trainingSet, test_size = 1/3, random_state = 8)
 
-        trainingSet = DatasetLoader.CustomDataset(trainingSet, self.__getToTensorTransformation())
+        trainingSet = DatasetLoader.CustomDataset(trainingSet, self.__getImagesPreprocessingTransformations())
         validationSet = DatasetLoader.CustomDataset(validationSet, self.__getToTensorTransformation())
 
         trainingSetDataLoader = DataLoader(trainingSet, batch_size = batchSize, shuffle = True)
@@ -61,8 +61,8 @@ class DatasetLoader:
 
         transform = Compose([
             RandomHorizontalFlip(),
-            #RandomRotation(5),
-            #transforms.RandomResizedCrop(96, scale = (0.8, 1.0)),
+            RandomRotation(5),
+            transforms.RandomResizedCrop(96, scale = (0.8, 1.0)),
             transforms.ToTensor()
         ])
         return transform

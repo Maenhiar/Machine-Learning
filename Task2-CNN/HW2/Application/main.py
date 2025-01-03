@@ -20,7 +20,9 @@ set_seed(seed_value)
 torch.use_deterministic_algorithms(True)
 
 model = CarRacingCNN2()
-optimizer = optim.SGD(model.parameters(), lr=0.0005, momentum=0.9, weight_decay=0.01)
+#optimizer = optim.SGD(model.parameters(), lr = 0.0001, momentum = 0.99, weight_decay = 0.01)
+optimizer = optim.Adam(model.parameters(), lr = 0.0001, weight_decay = 0.01)
+
 networkFitter = NetworkFitter()
 print('Training the model...')
 networkFitter.fit(model, optimizer)
