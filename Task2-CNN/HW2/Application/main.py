@@ -5,7 +5,7 @@ import torch
 import torch.optim as optim
 from CNN.CarRacingCNN1 import CarRacingCNN1
 from CNN.CarRacingCNN2 import CarRacingCNN2
-from ClassificationNeuralNetwork.NetworkFitter import NetworkFitter
+from CNNFitting.NetworkFitter import NetworkFitter
 from Plotters.ChartPlotter import ChartPlotter
 from Plotters.ConfusionMatrixPlotter import ConfusionMatrixPlotter
 import gymnasium as gym

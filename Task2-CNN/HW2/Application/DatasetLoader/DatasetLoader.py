@@ -1,4 +1,3 @@
-
 import torch
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
@@ -68,10 +67,19 @@ class DatasetLoader:
         return transform
         
     class CustomDataset(torch.utils.data.Dataset):
-        def __init__(self, dataset, transformation, target_class=4):
+        """
+        This class allows to apply the provided transformations
+        to the provided dataset.
+
+        Attributes:
+        dataset (ImageFolder): The images dataset that must be
+                                transformed.
+        transformation (Compose): The transformations that must be
+                                    applied to the provided dataset.
+        """
+        def __init__(self, dataset, transformation):
             self.dataset = dataset
             self.augmentedTransformation = transformation
-            self.target_class = target_class
 
         def __getitem__(self, index):
             img, label = self.dataset[index]

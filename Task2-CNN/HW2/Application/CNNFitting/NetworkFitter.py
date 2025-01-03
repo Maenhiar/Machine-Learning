@@ -1,8 +1,8 @@
 import time
 from torch import nn
 from DatasetLoader.DatasetLoader import DatasetLoader
-from ClassificationNeuralNetwork.NetworkTrainer import NetworkTrainer
-from ClassificationNeuralNetwork.NetworkEvaluator import NetworkEvaluator
+from CNNFitting.NetworkTrainer import NetworkTrainer
+from CNNFitting.NetworkEvaluator import NetworkEvaluator
 
 class NetworkFitter():
     """

@@ -2,7 +2,8 @@ import torch.nn as nn
 
 class CarRacingCNN2(nn.Module):
     """
-    This class implements a CNN.
+    This class implements a Convolutional Neural Network for a classification
+    task with 5 classes.
     """
     def __init__(self):
         super().__init__()

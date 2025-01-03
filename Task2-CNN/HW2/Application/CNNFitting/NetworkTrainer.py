@@ -1,5 +1,5 @@
 import torch
-from ClassificationNeuralNetwork.AbstractClassificationNN import AbstractClassificationNN
+from CNNFitting.AbstractClassificationNN import AbstractClassificationNN
 
 class NetworkTrainer(AbstractClassificationNN):
     """
