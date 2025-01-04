@@ -65,7 +65,6 @@ class NetworkFitter():
         startTime = time.time()
         
         for i in range(self.__epochsNumber):
-            print("epoch " + str(i) + "/" + str(self.__epochsNumber))
             self.__networkTrainer.fit(trainingSetDataLoader, model, optimizer, criterion)
             self.__networkValidator.fit(validationSetDataLoader, model, criterion)
 
